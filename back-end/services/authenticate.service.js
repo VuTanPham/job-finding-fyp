@@ -21,7 +21,8 @@ const registerAccount = async ({
   password,
   email,
   location,
-  ...rest
+  employee,
+  company
 }) => {
   const checkUsedUsername = await User.findOne({username});
   const checkUsedEmail = await User.findOne({email});
@@ -41,8 +42,8 @@ const registerAccount = async ({
   await account.save();
   const profile =
     accountType === "company"
-      ? new CompanyProfile({ ...rest, account })
-      : new EmployeeProfile({ ...rest, account });
+      ? new CompanyProfile({ ...employee, account })
+      : new EmployeeProfile({ ...company, account });
   await profile.save();
 };
 

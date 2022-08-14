@@ -12,15 +12,29 @@ import {
   AvatarGroup,
   useBreakpointValue,
   Icon,
-  Radio,
-  RadioGroup,
+  Select,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { register } from "../../services/auth.service";
 
-const validationSchema = yup.object({});
+const validationSchema = yup.object({
+  accountType: yup
+    .string("employee" | "company")
+    .required("You Must Choose an Account Type"),
+  email: yup
+    .string()
+    .email("email is invalid")
+    .required("Email must be filled"),
+  useranme: yup.string().required("Username is required"),
+  password: yup.string().required("Password is required"),
+  "confirm-password": yup
+    .string()
+    .oneOf([yup.ref("password"), null], "Password is not match")
+    .required("Confirm password is required"),
+});
 
 const avatars = [
   {
@@ -50,20 +64,31 @@ export default function RegisterPage() {
     register,
     handleSubmit,
     formState: { errors },
-    getValues,
     watch,
   } = useForm({
+    resolver: yupResolver(validationSchema),
     defaultValues: {
       accountType: "",
       email: "",
       useranme: "",
       password: "",
       "confirm-password": "",
+      employee: {
+        name: "",
+        dob: new Date(1999, 0, 1),
+        gender: "",
+      },
+      company: {
+        name: "",
+        industryFields: "",
+      },
     },
   });
 
-  console.log(watch())
-
+  const onSubmit = async (data) => {
+    
+  }
+ 
   return (
     <Box position={"relative"}>
       <Container
@@ -220,25 +245,71 @@ export default function RegisterPage() {
                   color: "gray.500",
                 }}
               />
-              <Text
-                as={"span"}
-                bgGradient="linear(to-r, red.400,pink.400)"
-                bgClip="text"
-                fontWeight={700}
+              <Select
+                placeholder="What do you wanna do?"
+                {...register("accountType")}
               >
-                Choose your option:
-              </Text>
-              <RadioGroup {...register("accountType")}>
-                <Stack direction="row">
-                  <Radio value="employee">Find Job</Radio>
-                  <Radio value="company">Hiring</Radio>
-                </Stack>
-              </RadioGroup>
+                <option value={"employee"}>Finding Job</option>
+                <option value={"company"}>Hirning Employee</option>
+              </Select>
+              {watch("accountType") === "employee" && (
+                <>
+                  <Input
+                    placeholder="Full Name"
+                    bg={"gray.100"}
+                    {...register("employee.name")}
+                    border={0}
+                    color={"gray.500"}
+                    _placeholder={{
+                      color: "gray.500",
+                    }}
+                  />
+                  <Input
+                    bg={"gray.100"}
+                    {...register("employee.dob")}
+                    border={0}
+                    type="date"
+                    color={"gray.500"}
+                    _placeholder={{
+                      color: "gray.500",
+                    }}
+                  />
+                  <Select
+                    placeholder="What is your gender?"
+                    {...register("employee.gender")}
+                  >
+                    <option value={"Male"}>Male</option>
+                    <option value={"Female"}>Female</option>
+                  </Select>
+                </>
+              )}
+              {watch("accountType") === "company" && (
+                <>
+                  <Input
+                    placeholder="Company Name"
+                    bg={"gray.100"}
+                    {...register("company.name")}
+                    border={0}
+                    color={"gray.500"}
+                    _placeholder={{
+                      color: "gray.500",
+                    }}
+                  />
+                  <Select
+                    placeholder="Select Industry field?"
+                    {...register("company.industryFields")}
+                  >
+                    <option value={"IT"}>Information Technology</option>
+                    <option value={"Marketing"}>Marketing</option>
+                  </Select>
+                </>
+              )}
             </Stack>
             <Button
               fontFamily={"heading"}
               mt={8}
               w={"full"}
+              type="submit"
               bgGradient="linear(to-r, red.400,pink.400)"
               color={"white"}
               _hover={{
