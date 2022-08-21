@@ -13,14 +13,21 @@ import {
   useBreakpointValue,
   Icon,
   Select,
+  FormErrorMessage,
+  FormControl,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { register } from "../../services/auth.service";
+import { ErrorMessage } from "@hookform/error-message";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
-const validationSchema = yup.object({
+import { register as registerAccount } from "../../services/auth.service";
+import { useEffect, useState } from "react";
+
+const validationSchema = yup.object().shape({
   accountType: yup
     .string("employee" | "company")
     .required("You Must Choose an Account Type"),
@@ -28,7 +35,7 @@ const validationSchema = yup.object({
     .string()
     .email("email is invalid")
     .required("Email must be filled"),
-  useranme: yup.string().required("Username is required"),
+  username: yup.string().required("Username is required"),
   password: yup.string().required("Password is required"),
   "confirm-password": yup
     .string()
@@ -60,22 +67,25 @@ const avatars = [
 ];
 
 export default function RegisterPage() {
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isValid, isSubmitting },
+    trigger,
+    getValues,
     watch,
   } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
       accountType: "",
       email: "",
-      useranme: "",
+      username: "",
       password: "",
       "confirm-password": "",
       employee: {
         name: "",
-        dob: new Date(1999, 0, 1),
+        dob: null,
         gender: "",
       },
       company: {
@@ -83,12 +93,50 @@ export default function RegisterPage() {
         industryFields: "",
       },
     },
+    mode: "all",
+    reValidateMode: "onSubmit",
+    criteriaMode: "all",
   });
 
-  const onSubmit = async (data) => {
-    
-  }
- 
+  const [isFormValid, setIsFormValid] = useState(false);
+
+  useEffect(() => {
+    if (!isValid) {
+      setIsFormValid(false);
+    } else {
+      if (watch("accountType") === "employee") {
+        if (
+          watch("employee.name") !== "" &&
+          watch("employee.dob") !== null &&
+          watch("employee.gender") !== ""
+        ) {
+          setIsFormValid(true);
+        } else {
+          setIsFormValid(false);
+        }
+      } else if (watch("accountType") === "company") {
+        if (
+          watch("company.name") !== "" &&
+          watch("company.industryFields") !== ""
+        ) {
+          setIsFormValid(true);
+        } else {
+          setIsFormValid(false);
+        }
+      }
+    }
+  }, [watch, isValid]);
+
+  const onSubmit = async (body) => {
+    const { status, data } = await registerAccount(body);
+    if (status === 201) {
+      navigate("/login");
+      toast.success("Register sucess");
+    } else {
+      toast.error(data.message);
+    }
+  };
+
   return (
     <Box position={"relative"}>
       <Container
@@ -201,107 +249,223 @@ export default function RegisterPage() {
               </Link>
             </Heading>
           </Stack>
-          <Box as={"form"} mt={10}>
+          <Box as={"form"} onSubmit={handleSubmit(onSubmit)} action="#" mt={10}>
             <Stack spacing={4}>
-              <Input
-                placeholder="Username*"
-                bg={"gray.100"}
-                {...register("username")}
-                border={0}
-                color={"gray.500"}
-                _placeholder={{
-                  color: "gray.500",
-                }}
-              />
-              <Input
-                placeholder="Password*"
-                type="password"
-                bg={"gray.100"}
-                {...register("password")}
-                border={0}
-                color={"gray.500"}
-                _placeholder={{
-                  color: "gray.500",
-                }}
-              />
-              <Input
-                placeholder="Confirm Password*"
-                type="password"
-                bg={"gray.100"}
-                {...register("confirm-password")}
-                border={0}
-                color={"gray.500"}
-                _placeholder={{
-                  color: "gray.500",
-                }}
-              />
-              <Input
-                placeholder="Email"
-                bg={"gray.100"}
-                {...register("email")}
-                border={0}
-                color={"gray.500"}
-                _placeholder={{
-                  color: "gray.500",
-                }}
-              />
-              <Select
-                placeholder="What do you wanna do?"
-                {...register("accountType")}
-              >
-                <option value={"employee"}>Finding Job</option>
-                <option value={"company"}>Hirning Employee</option>
-              </Select>
+              <FormControl isInvalid={errors.username}>
+                <Input
+                  placeholder="Username*"
+                  bg={"gray.100"}
+                  {...register("username")}
+                  border={0}
+                  color={"gray.500"}
+                  _placeholder={{
+                    color: "gray.500",
+                  }}
+                  errorBorderColor="red.300"
+                />
+                <ErrorMessage
+                  errors={errors}
+                  name="username"
+                  render={({ message }) => (
+                    <FormErrorMessage>{message}</FormErrorMessage>
+                  )}
+                />
+              </FormControl>
+              <FormControl isInvalid={errors.username}>
+                <Input
+                  placeholder="Password*"
+                  bg={"gray.100"}
+                  {...register("password")}
+                  type="password"
+                  border={0}
+                  color={"gray.500"}
+                  _placeholder={{
+                    color: "gray.500",
+                  }}
+                  errorBorderColor="red.300"
+                />
+                <ErrorMessage
+                  errors={errors}
+                  name="password"
+                  render={({ message }) => (
+                    <FormErrorMessage>{message}</FormErrorMessage>
+                  )}
+                />
+              </FormControl>
+              <FormControl isInvalid={errors["confirm-password"]}>
+                <Input
+                  placeholder="Confirm Password*"
+                  bg={"gray.100"}
+                  {...register("confirm-password")}
+                  type="password"
+                  border={0}
+                  color={"gray.500"}
+                  _placeholder={{
+                    color: "gray.500",
+                  }}
+                  errorBorderColor="red.300"
+                />
+                <ErrorMessage
+                  errors={errors}
+                  name="confirm-password"
+                  render={({ message }) => (
+                    <FormErrorMessage>{message}</FormErrorMessage>
+                  )}
+                />
+              </FormControl>
+              <FormControl isInvalid={errors.email}>
+                <Input
+                  placeholder="Email*"
+                  bg={"gray.100"}
+                  {...register("email")}
+                  border={0}
+                  color={"gray.500"}
+                  _placeholder={{
+                    color: "gray.500",
+                  }}
+                  errorBorderColor="red.300"
+                />
+                <ErrorMessage
+                  errors={errors}
+                  name="email"
+                  render={({ message }) => (
+                    <FormErrorMessage>{message}</FormErrorMessage>
+                  )}
+                />
+              </FormControl>
+              <FormControl isInvalid={errors.accountType}>
+                <Select
+                  placeholder="What do you wanna do?"
+                  {...register("accountType")}
+                >
+                  <option value={"employee"}>Finding Job</option>
+                  <option value={"company"}>Hirning Employee</option>
+                </Select>
+                <ErrorMessage
+                  errors={errors}
+                  name="accountType"
+                  render={({ message }) => (
+                    <FormErrorMessage>{message}</FormErrorMessage>
+                  )}
+                />
+              </FormControl>
               {watch("accountType") === "employee" && (
                 <>
-                  <Input
-                    placeholder="Full Name"
-                    bg={"gray.100"}
-                    {...register("employee.name")}
-                    border={0}
-                    color={"gray.500"}
-                    _placeholder={{
-                      color: "gray.500",
-                    }}
-                  />
-                  <Input
-                    bg={"gray.100"}
-                    {...register("employee.dob")}
-                    border={0}
-                    type="date"
-                    color={"gray.500"}
-                    _placeholder={{
-                      color: "gray.500",
-                    }}
-                  />
-                  <Select
-                    placeholder="What is your gender?"
-                    {...register("employee.gender")}
+                  <FormControl
+                    isInvalid={
+                      getValues("accountType") === "employee" &&
+                      watch("employee.name") === ""
+                    }
                   >
-                    <option value={"Male"}>Male</option>
-                    <option value={"Female"}>Female</option>
-                  </Select>
+                    <Input
+                      placeholder="Full Name*"
+                      bg={"gray.100"}
+                      {...register("employee.name")}
+                      border={0}
+                      color={"gray.500"}
+                      _placeholder={{
+                        color: "gray.500",
+                      }}
+                      errorBorderColor="red.300"
+                    />
+                    {getValues("accountType") === "employee" &&
+                      watch("employee.name") === "" && (
+                        <FormErrorMessage>
+                          Full Name must be filled
+                        </FormErrorMessage>
+                      )}
+                  </FormControl>
+                  <FormControl
+                    isInvalid={
+                      getValues("accountType") === "employee" &&
+                      watch("employee.dob") === null
+                    }
+                  >
+                    <Input
+                      placeholder="Date of Birth*"
+                      bg={"gray.100"}
+                      {...register("employee.dob")}
+                      border={0}
+                      type="date"
+                      color={"gray.500"}
+                      _placeholder={{
+                        color: "gray.500",
+                      }}
+                      errorBorderColor="red.300"
+                    />
+                    {getValues("accountType") === "employee" &&
+                      watch("employee.dob") === null && (
+                        <FormErrorMessage>
+                          You must choose your date of birth
+                        </FormErrorMessage>
+                      )}
+                  </FormControl>
+                  <FormControl
+                    isInvalid={
+                      getValues("accountType") === "employee" &&
+                      watch("employee.gender") === ""
+                    }
+                  >
+                    <Select
+                      placeholder="What is your gender?"
+                      {...register("employee.gender")}
+                    >
+                      <option value={"Male"}>Male</option>
+                      <option value={"Female"}>Female</option>
+                    </Select>
+                    {getValues("accountType") === "employee" &&
+                      watch("employee.gender") === "" && (
+                        <FormErrorMessage>
+                          Gender must be choose
+                        </FormErrorMessage>
+                      )}
+                  </FormControl>
                 </>
               )}
               {watch("accountType") === "company" && (
                 <>
-                  <Input
-                    placeholder="Company Name"
-                    bg={"gray.100"}
-                    {...register("company.name")}
-                    border={0}
-                    color={"gray.500"}
-                    _placeholder={{
-                      color: "gray.500",
-                    }}
-                  />
-                  <Select
-                    placeholder="Select Industry field?"
-                    {...register("company.industryFields")}
+                  <FormControl
+                    isInvalid={
+                      getValues("accountType") === "company" &&
+                      watch("employee.name") === ""
+                    }
                   >
-                    <option value={"IT"}>Information Technology</option>
-                    <option value={"Marketing"}>Marketing</option>
-                  </Select>
+                    <Input
+                      placeholder="Company Name*"
+                      bg={"gray.100"}
+                      {...register("company.name")}
+                      border={0}
+                      color={"gray.500"}
+                      _placeholder={{
+                        color: "gray.500",
+                      }}
+                      errorBorderColor="red.300"
+                    />
+                    {getValues("accountType") === "company" &&
+                      watch("company.name") === null && (
+                        <FormErrorMessage>Name must be filled</FormErrorMessage>
+                      )}
+                  </FormControl>
+                  <FormControl
+                    isInvalid={
+                      getValues("accountType") === "company" &&
+                      watch("company.industryFields") === ""
+                    }
+                  >
+                    <Select
+                      placeholder="Select Industry field?"
+                      {...register("company.industryFields")}
+                    >
+                      <option value={"IT"}>Information Technology</option>
+                      <option value={"Marketing"}>Marketing</option>
+                    </Select>
+                    {getValues("accountType") === "company" &&
+                      watch("company.industryFields") === null && (
+                        <FormErrorMessage>
+                          Field must be choose
+                        </FormErrorMessage>
+                      )}
+                  </FormControl>
                 </>
               )}
             </Stack>
@@ -310,12 +474,14 @@ export default function RegisterPage() {
               mt={8}
               w={"full"}
               type="submit"
+              role="submit"
               bgGradient="linear(to-r, red.400,pink.400)"
               color={"white"}
               _hover={{
                 bgGradient: "linear(to-r, red.400,pink.400)",
                 boxShadow: "xl",
               }}
+              isDisabled={!isFormValid}
             >
               Register
             </Button>

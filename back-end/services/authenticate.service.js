@@ -22,10 +22,10 @@ const registerAccount = async ({
   email,
   location,
   employee,
-  company
+  company,
 }) => {
-  const checkUsedUsername = await User.findOne({username});
-  const checkUsedEmail = await User.findOne({email});
+  const checkUsedUsername = await User.findOne({ username });
+  const checkUsedEmail = await User.findOne({ email });
   if (checkUsedUsername) {
     throw new Error("username had been used");
   }
@@ -42,8 +42,8 @@ const registerAccount = async ({
   await account.save();
   const profile =
     accountType === "company"
-      ? new CompanyProfile({ ...employee, account })
-      : new EmployeeProfile({ ...company, account });
+      ? new CompanyProfile({ ...company, account })
+      : new EmployeeProfile({ ...employee, account });
   await profile.save();
 };
 
@@ -53,12 +53,11 @@ const changePassword = async ({ username, oldPassword, newPassword }) => {
     checkAccount.password,
     process.env.ENCRYPT_KEY
   );
-  if(decryptedPassword === oldPassword) {
+  if (decryptedPassword === oldPassword) {
     checkAccount.password = newPassword;
     await checkAccount.save();
-  }
-  else {
-    throw new Error('Old Password is wrong')
+  } else {
+    throw new Error("Old Password is wrong");
   }
 };
 

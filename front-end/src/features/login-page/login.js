@@ -12,8 +12,19 @@ import {
   AvatarGroup,
   useBreakpointValue,
   Icon,
+  FormControl,
+  FormErrorMessage,
 } from "@chakra-ui/react";
-import {Link} from 'react-router-dom'
+import { useContext } from "react";
+import { useForm } from "react-hook-form";
+import { Link, Navigate, useNavigate } from "react-router-dom";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { ErrorMessage } from "@hookform/error-message";
+
+import { authContext, loginAction } from "../../cores/context/auth";
+import { login } from "../../services/auth.service";
+import { toast } from "react-toastify";
 
 const avatars = [
   {
@@ -38,7 +49,40 @@ const avatars = [
   },
 ];
 
+const LoginSchema = yup.object().shape({
+  username: yup.string().required("Username is required"),
+  password: yup.string().required("Password is required"),
+});
+
 export default function LoginPage() {
+  const { dispatch } = useContext(authContext);
+  const {
+    formState: { errors, isValid, isSubmitting },
+    handleSubmit,
+    register,
+  } = useForm({
+    mode: "all",
+    resolver: yupResolver(LoginSchema),
+    defaultValues: {
+      username: "",
+      password: "",
+    },
+  });
+
+  const navgiate = useNavigate();
+
+  const onSubmit = async (body) => {
+    const { status, data: response } = await login(body);
+    if (status === 200) {
+      toast.success("login succes");
+      console.log(response);
+      dispatch(loginAction(response));
+      navgiate("/");
+    } else {
+      toast.error(response);
+    }
+  };
+
   return (
     <Box position={"relative"}>
       <Container
@@ -140,7 +184,7 @@ export default function LoginPage() {
                 {" "}
                 Or{" "}
               </Text>
-              <Link to='/register'>
+              <Link to="/register">
                 <Text
                   as={"span"}
                   bgGradient="linear(to-r, blue.400,blue.700)"
@@ -151,35 +195,49 @@ export default function LoginPage() {
               </Link>
             </Heading>
           </Stack>
-          <Box as={"form"} mt={10}>
+          <Box as={"form"} action="#" onSubmit={handleSubmit(onSubmit)} mt={10}>
             <Stack spacing={4}>
-              <Input
-                placeholder="Firstname"
-                bg={"gray.100"}
-                border={0}
-                color={"gray.500"}
-                _placeholder={{
-                  color: "gray.500",
-                }}
-              />
-              <Input
-                placeholder="firstname@lastname.io"
-                bg={"gray.100"}
-                border={0}
-                color={"gray.500"}
-                _placeholder={{
-                  color: "gray.500",
-                }}
-              />
-              <Input
-                placeholder="+1 (___) __-___-___"
-                bg={"gray.100"}
-                border={0}
-                color={"gray.500"}
-                _placeholder={{
-                  color: "gray.500",
-                }}
-              />
+              <FormControl isInvalid={errors.username}>
+                <Input
+                  placeholder="Username*"
+                  bg={"gray.100"}
+                  {...register("username")}
+                  border={0}
+                  color={"gray.500"}
+                  _placeholder={{
+                    color: "gray.500",
+                  }}
+                  errorBorderColor="red.300"
+                />
+                <ErrorMessage
+                  errors={errors}
+                  name="username"
+                  render={({ message }) => (
+                    <FormErrorMessage>{message}</FormErrorMessage>
+                  )}
+                />
+              </FormControl>
+              <FormControl isInvalid={errors.username}>
+                <Input
+                  placeholder="Password*"
+                  bg={"gray.100"}
+                  {...register("password")}
+                  type="password"
+                  border={0}
+                  color={"gray.500"}
+                  _placeholder={{
+                    color: "gray.500",
+                  }}
+                  errorBorderColor="red.300"
+                />
+                <ErrorMessage
+                  errors={errors}
+                  name="password"
+                  render={({ message }) => (
+                    <FormErrorMessage>{message}</FormErrorMessage>
+                  )}
+                />
+              </FormControl>
             </Stack>
             <Button
               fontFamily={"heading"}
@@ -187,10 +245,13 @@ export default function LoginPage() {
               w={"full"}
               bgGradient="linear(to-r, red.400,pink.400)"
               color={"white"}
+              type="submit"
               _hover={{
                 bgGradient: "linear(to-r, red.400,pink.400)",
                 boxShadow: "xl",
               }}
+              isDisabled={!isValid}
+              isLoading={isSubmitting}
             >
               Submit
             </Button>

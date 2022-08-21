@@ -6,3 +6,11 @@ export const register = (body) =>
       "Content-Type": "application/json",
     },
   });
+
+export const login = (body) =>
+  axios.post(`${process.env.REACT_APP_API}/auth/login`, body, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+    validateStatus: (status) => status <= 500,
+  });
