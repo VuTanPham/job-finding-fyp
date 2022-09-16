@@ -5,7 +5,7 @@ const Jwt = require("jsonwebtoken");
 const signToken = (payload) => {
   return Jwt.sign(
     {
-      issuer: "enterprice-project-v1",
+      issuer: "job-finding-fyp-v1",
       subject: payload,
     },
     process.env.SECRET_KEY,

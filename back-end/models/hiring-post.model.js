@@ -5,7 +5,8 @@ const HiringPostSchema = new mongoose.Schema(
     title: String,
     description: String,
     dueDate: Date,
-    appliedCadidate: [{type: mongoose.Schema.Types.ObjectId, ref: 'employee-profiles'}]
+    appliedCandidate: [{type: mongoose.Schema.Types.ObjectId, ref: 'employee-profiles'}],
+    createdBy: {type: mongoose.Schema.Types.ObjectId, ref: 'company-profiles'}
   },
   { timestamps: true }
 );

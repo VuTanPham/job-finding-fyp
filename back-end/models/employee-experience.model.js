@@ -5,7 +5,7 @@ const EmployeeExperienceSchema = new mongoose.Schema({
     endDate: Date,
     isCurrent: {type: Boolean, default: false},
     companyName: String,
-    jobPosititon: String,
+    jobPosition: String,
     description: String
 }, { timestamps: true });
 
