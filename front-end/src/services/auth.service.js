@@ -5,6 +5,7 @@ export const register = (body) =>
     headers: {
       "Content-Type": "application/json",
     },
+    validateStatus: (status) => status <= 500,
   });
 
 export const login = (body) =>

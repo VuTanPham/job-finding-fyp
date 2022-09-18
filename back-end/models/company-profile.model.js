@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const CompanyProfileSchema = new mongoose.Schema({
  name: String,
- industryFields: {type: mongoose.Schema.Types.ObjectId, ref: 'industry-fields'},
+ industryField: {type: mongoose.Schema.Types.ObjectId, ref: 'industry-fields'},
  introduction: String,
  bannerLink: String,
  account: {type: mongoose.Schema.Types.ObjectId, ref: 'users'}

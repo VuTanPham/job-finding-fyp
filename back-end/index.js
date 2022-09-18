@@ -6,6 +6,8 @@ const passport = require('passport');
 const expressSession = require("express-session");
 const mongoose = require('mongoose');
 
+const seed = require('./services/seed.service')
+
 const appRouter = require('./routes');
 
 (require('dotenv')).config();
@@ -20,6 +22,7 @@ const connect = async (dbConnectionUrl) => {
       useUnifiedTopology: true,
       useNewUrlParser: true,
     });
+    await seed();
     console.log("DB connected");
   } catch (error) {
     console.error(`Connecting error: ${error}`);

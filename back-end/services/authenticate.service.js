@@ -1,4 +1,4 @@
-const { User, EmployeeProfile, CompanyProfile } = require("../models");
+const { User, EmployeeProfile, CompanyProfile, IndustryFields } = require("../models");
 const CryptoJS = require("crypto-js");
 const Jwt = require("jsonwebtoken");
 
@@ -26,6 +26,7 @@ const registerAccount = async ({
 }) => {
   const checkUsedUsername = await User.findOne({ username });
   const checkUsedEmail = await User.findOne({ email });
+  console.log(checkUsedUsername)
   if (checkUsedUsername) {
     throw new Error("username had been used");
   }
@@ -42,7 +43,7 @@ const registerAccount = async ({
   await account.save();
   const profile =
     accountType === "company"
-      ? new CompanyProfile({ ...company, account })
+      ? new CompanyProfile({ ...company, account, industryField: await IndustryFields.findById(company.industryField)})
       : new EmployeeProfile({ ...employee, account });
   await profile.save();
 };

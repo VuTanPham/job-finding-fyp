@@ -26,6 +26,7 @@ import { useNavigate } from "react-router-dom";
 
 import { register as registerAccount } from "../../services/auth.service";
 import { useEffect, useState } from "react";
+import { getAllIndustryFields } from "../../services/industry-fields.service";
 
 const validationSchema = yup.object().shape({
   accountType: yup
@@ -71,8 +72,7 @@ export default function RegisterPage() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid, isSubmitting },
-    trigger,
+    formState: { errors, isValid, },
     getValues,
     watch,
   } = useForm({
@@ -99,6 +99,17 @@ export default function RegisterPage() {
   });
 
   const [isFormValid, setIsFormValid] = useState(false);
+
+  const [industryFields, setIndustryFields] = useState([])
+
+  const getAllIndustryFieldsInSystem = async () => {
+    const {data, status} = await getAllIndustryFields();
+    status === 200 && setIndustryFields(data.data);
+  }
+
+  useEffect(() => {
+    getAllIndustryFieldsInSystem();
+  }, [])
 
   useEffect(() => {
     if (!isValid) {
@@ -131,7 +142,7 @@ export default function RegisterPage() {
     const { status, data } = await registerAccount(body);
     if (status === 201) {
       navigate("/login");
-      toast.success("Register sucess");
+      toast.success("Register success");
     } else {
       toast.error(data.message);
     }
@@ -154,8 +165,8 @@ export default function RegisterPage() {
             Find Your Dream Job{" "}
             <Text
               as={"span"}
-              bgGradient="linear(to-r, red.400,pink.400)"
-              bgClip="text"
+              bgGradient='linear(to-r, red.400,pink.400)'
+              bgClip='text'
             >
               &
             </Text>{" "}
@@ -232,28 +243,28 @@ export default function RegisterPage() {
               Register
               <Text
                 as={"span"}
-                bgGradient="linear(to-r, red.400,pink.400)"
-                bgClip="text"
+                bgGradient='linear(to-r, red.400,pink.400)'
+                bgClip='text'
               >
                 {" "}
                 Or{" "}
               </Text>
-              <Link to="/">
+              <Link to='/'>
                 <Text
                   as={"span"}
-                  bgGradient="linear(to-r, blue.400,blue.700)"
-                  bgClip="text"
+                  bgGradient='linear(to-r, blue.400,blue.700)'
+                  bgClip='text'
                 >
                   Login
                 </Text>
               </Link>
             </Heading>
           </Stack>
-          <Box as={"form"} onSubmit={handleSubmit(onSubmit)} action="#" mt={10}>
+          <Box as={"form"} onSubmit={handleSubmit(onSubmit)} action='#' mt={10}>
             <Stack spacing={4}>
               <FormControl isInvalid={errors.username}>
                 <Input
-                  placeholder="Username*"
+                  placeholder='Username*'
                   bg={"gray.100"}
                   {...register("username")}
                   border={0}
@@ -261,11 +272,11 @@ export default function RegisterPage() {
                   _placeholder={{
                     color: "gray.500",
                   }}
-                  errorBorderColor="red.300"
+                  errorBorderColor='red.300'
                 />
                 <ErrorMessage
                   errors={errors}
-                  name="username"
+                  name='username'
                   render={({ message }) => (
                     <FormErrorMessage>{message}</FormErrorMessage>
                   )}
@@ -273,20 +284,20 @@ export default function RegisterPage() {
               </FormControl>
               <FormControl isInvalid={errors.username}>
                 <Input
-                  placeholder="Password*"
+                  placeholder='Password*'
                   bg={"gray.100"}
                   {...register("password")}
-                  type="password"
+                  type='password'
                   border={0}
                   color={"gray.500"}
                   _placeholder={{
                     color: "gray.500",
                   }}
-                  errorBorderColor="red.300"
+                  errorBorderColor='red.300'
                 />
                 <ErrorMessage
                   errors={errors}
-                  name="password"
+                  name='password'
                   render={({ message }) => (
                     <FormErrorMessage>{message}</FormErrorMessage>
                   )}
@@ -294,20 +305,20 @@ export default function RegisterPage() {
               </FormControl>
               <FormControl isInvalid={errors["confirm-password"]}>
                 <Input
-                  placeholder="Confirm Password*"
+                  placeholder='Confirm Password*'
                   bg={"gray.100"}
                   {...register("confirm-password")}
-                  type="password"
+                  type='password'
                   border={0}
                   color={"gray.500"}
                   _placeholder={{
                     color: "gray.500",
                   }}
-                  errorBorderColor="red.300"
+                  errorBorderColor='red.300'
                 />
                 <ErrorMessage
                   errors={errors}
-                  name="confirm-password"
+                  name='confirm-password'
                   render={({ message }) => (
                     <FormErrorMessage>{message}</FormErrorMessage>
                   )}
@@ -315,7 +326,7 @@ export default function RegisterPage() {
               </FormControl>
               <FormControl isInvalid={errors.email}>
                 <Input
-                  placeholder="Email*"
+                  placeholder='Email*'
                   bg={"gray.100"}
                   {...register("email")}
                   border={0}
@@ -323,11 +334,11 @@ export default function RegisterPage() {
                   _placeholder={{
                     color: "gray.500",
                   }}
-                  errorBorderColor="red.300"
+                  errorBorderColor='red.300'
                 />
                 <ErrorMessage
                   errors={errors}
-                  name="email"
+                  name='email'
                   render={({ message }) => (
                     <FormErrorMessage>{message}</FormErrorMessage>
                   )}
@@ -335,7 +346,7 @@ export default function RegisterPage() {
               </FormControl>
               <FormControl isInvalid={errors.accountType}>
                 <Select
-                  placeholder="What do you wanna do?"
+                  placeholder='What do you wanna do?'
                   {...register("accountType")}
                 >
                   <option value={"employee"}>Finding Job</option>
@@ -343,7 +354,7 @@ export default function RegisterPage() {
                 </Select>
                 <ErrorMessage
                   errors={errors}
-                  name="accountType"
+                  name='accountType'
                   render={({ message }) => (
                     <FormErrorMessage>{message}</FormErrorMessage>
                   )}
@@ -358,7 +369,7 @@ export default function RegisterPage() {
                     }
                   >
                     <Input
-                      placeholder="Full Name*"
+                      placeholder='Full Name*'
                       bg={"gray.100"}
                       {...register("employee.name")}
                       border={0}
@@ -366,7 +377,7 @@ export default function RegisterPage() {
                       _placeholder={{
                         color: "gray.500",
                       }}
-                      errorBorderColor="red.300"
+                      errorBorderColor='red.300'
                     />
                     {getValues("accountType") === "employee" &&
                       watch("employee.name") === "" && (
@@ -382,16 +393,16 @@ export default function RegisterPage() {
                     }
                   >
                     <Input
-                      placeholder="Date of Birth*"
+                      placeholder='Date of Birth*'
                       bg={"gray.100"}
                       {...register("employee.dob")}
                       border={0}
-                      type="date"
+                      type='date'
                       color={"gray.500"}
                       _placeholder={{
                         color: "gray.500",
                       }}
-                      errorBorderColor="red.300"
+                      errorBorderColor='red.300'
                     />
                     {getValues("accountType") === "employee" &&
                       watch("employee.dob") === null && (
@@ -407,7 +418,7 @@ export default function RegisterPage() {
                     }
                   >
                     <Select
-                      placeholder="What is your gender?"
+                      placeholder='What is your gender?'
                       {...register("employee.gender")}
                     >
                       <option value={"Male"}>Male</option>
@@ -427,11 +438,11 @@ export default function RegisterPage() {
                   <FormControl
                     isInvalid={
                       getValues("accountType") === "company" &&
-                      watch("employee.name") === ""
+                      watch("company.name") === ""
                     }
                   >
                     <Input
-                      placeholder="Company Name*"
+                      placeholder='Company Name*'
                       bg={"gray.100"}
                       {...register("company.name")}
                       border={0}
@@ -439,10 +450,10 @@ export default function RegisterPage() {
                       _placeholder={{
                         color: "gray.500",
                       }}
-                      errorBorderColor="red.300"
+                      errorBorderColor='red.300'
                     />
                     {getValues("accountType") === "company" &&
-                      watch("company.name") === null && (
+                      (watch("company.name") === "") && (
                         <FormErrorMessage>Name must be filled</FormErrorMessage>
                       )}
                   </FormControl>
@@ -453,11 +464,12 @@ export default function RegisterPage() {
                     }
                   >
                     <Select
-                      placeholder="Select Industry field?"
+                      placeholder='Select Industry field?'
                       {...register("company.industryFields")}
                     >
-                      <option value={"IT"}>Information Technology</option>
-                      <option value={"Marketing"}>Marketing</option>
+                      {industryFields.map((item) => (
+                        <option value={item._id}>{item.name}</option>
+                      ))}
                     </Select>
                     {getValues("accountType") === "company" &&
                       watch("company.industryFields") === null && (
@@ -473,9 +485,9 @@ export default function RegisterPage() {
               fontFamily={"heading"}
               mt={8}
               w={"full"}
-              type="submit"
-              role="submit"
-              bgGradient="linear(to-r, red.400,pink.400)"
+              type='submit'
+              role='submit'
+              bgGradient='linear(to-r, red.400,pink.400)'
               color={"white"}
               _hover={{
                 bgGradient: "linear(to-r, red.400,pink.400)",
