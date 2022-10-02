@@ -7,7 +7,6 @@ const UserSchema = new mongoose.Schema({
     email: String,
     location: String,
     accountType: {type: String, enum: ['employee', 'company', 'admin']},
-    isAdmin: {type: Boolean, default: false}
 }, {timestamps: true})
 
 UserSchema.pre("save", async function (next) {
