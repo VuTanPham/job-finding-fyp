@@ -7,7 +7,7 @@ const employeeRouter = require('./employee-profile.route')
 userRouter.use(passport.authenticate('jwt', {session: false}));
 
 userRouter.get('/', getAll);
-userRouter.getOne('/:userId', getOne);
+userRouter.get('/:userId', getOne);
 userRouter.put('/:userId',authorize(['employee', 'company']), updateOne);
 
 userRouter.use('/:userId/experience', employeeRouter);

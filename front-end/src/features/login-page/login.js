@@ -17,7 +17,7 @@ import {
 } from "@chakra-ui/react";
 import { useContext } from "react";
 import { useForm } from "react-hook-form";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { ErrorMessage } from "@hookform/error-message";
@@ -69,15 +69,14 @@ export default function LoginPage() {
     },
   });
 
-  const navgiate = useNavigate();
+  const navigate = useNavigate();
 
   const onSubmit = async (body) => {
     const { status, data: response } = await login(body);
     if (status === 200) {
-      toast.success("login succes");
-      console.log(response);
+      toast.success("login success");
       dispatch(loginAction(response));
-      navgiate("/");
+      navigate("/");
     } else {
       toast.error(response);
     }

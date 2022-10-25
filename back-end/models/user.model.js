@@ -6,6 +6,7 @@ const UserSchema = new mongoose.Schema({
     password: String,
     email: String,
     location: String,
+    avatarUrl: String,
     accountType: {type: String, enum: ['employee', 'company', 'admin']},
 }, {timestamps: true})
 
