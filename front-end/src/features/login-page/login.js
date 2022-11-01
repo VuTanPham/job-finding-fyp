@@ -216,7 +216,7 @@ export default function LoginPage() {
                   )}
                 />
               </FormControl>
-              <FormControl isInvalid={errors.username}>
+              <FormControl isInvalid={errors.password}>
                 <Input
                   placeholder="Password*"
                   bg={"gray.100"}

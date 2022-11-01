@@ -8,12 +8,17 @@ import {
   InputGroup,
   InputLeftAddon,
   Button,
+  useDisclosure,
 } from "@chakra-ui/react";
 import PostItem from "./post";
 import { FaSearch, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import CreatePostModal from "./create-post";
 
 const Home = () => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
   return (
+    <>
+    <CreatePostModal isOpen={isOpen} onClose={onClose} />
     <Flex>
       <Box flex={1} pl={20} pt={10}>
         <Heading fontSize={"2xl"} mb={2} fontFamily={"body"}>
@@ -24,7 +29,7 @@ const Home = () => {
           <Input placeholder='Search...' />
         </InputGroup>
 
-        <Button bgColor='blue' colorScheme={"teal"} mb={5}>
+        <Button onClick={onOpen} bgColor='blue' colorScheme={"teal"} mb={5}>
           Create
         </Button>
 
@@ -57,6 +62,7 @@ const Home = () => {
         </Flex>
       </Box>
     </Flex>
+    </>
   );
 };
 
