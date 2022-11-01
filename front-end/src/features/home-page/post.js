@@ -10,7 +10,7 @@ import {
   useColorModeValue,
 } from "@chakra-ui/react";
 
-export default function PostItem() {
+export default function PostItem({item}) {
   return (
     <Stack
       borderWidth='1px'
@@ -28,7 +28,7 @@ export default function PostItem() {
           boxSize='100%'
           height="400px"
           src={
-            "https://t4.ftcdn.net/jpg/03/83/85/39/360_F_383853926_phpsAk4M5Be9R15w26S2kjSymyUOpoQV.jpg"
+            item.bannerUrl
           }
         />
       </Flex>
@@ -41,21 +41,17 @@ export default function PostItem() {
         pt={2}
       >
         <Heading fontSize={"2xl"} fontFamily={"body"}>
-          Software Engineer
+          {item.title}
         </Heading>
         <Text fontWeight={600} color={"gray.500"} size='sm' mb={4}>
-          20/12/2022
+          {item.createAt}
         </Text>
         <Text
           textAlign={"center"}
           color={useColorModeValue("gray.700", "gray.400")}
           px={3}
         >
-          Actress, musician, songwriter and artist. PM for work inquires or
-          <Link href={"#"} color={"blue.400"}>
-            #tag
-          </Link>
-          me in your posts
+         {item.description}
         </Text>
         <Stack align={"center"} justify={"center"} direction={"row"} mt={6}>
           <Badge

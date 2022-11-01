@@ -13,9 +13,28 @@ import {
 import PostItem from "./post";
 import { FaSearch, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import CreatePostModal from "./create-post";
+import { getPost } from "../../services/hiring-post.service";
+import { useContext, useEffect, useState } from "react";
+import { authContext } from "../../cores/context/auth";
 
 const Home = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const [data, setData] = useState([]);
+
+  const {state: {user}} = useContext(authContext);
+
+  useEffect(() => {
+    getData()
+  }, [])
+  const getData = async () => {
+    try {
+      const response = await getPost();
+      setData(response.data.data)
+    } catch (error) {
+      console.log(error)
+    }
+  }
   return (
     <>
     <CreatePostModal isOpen={isOpen} onClose={onClose} />
@@ -29,9 +48,9 @@ const Home = () => {
           <Input placeholder='Search...' />
         </InputGroup>
 
-        <Button onClick={onOpen} bgColor='blue' colorScheme={"teal"} mb={5}>
+        {user.accountType === 'company' && <Button onClick={onOpen} bgColor='blue' colorScheme={"teal"} mb={5}>
           Create
-        </Button>
+        </Button>}
 
         <Heading fontSize={"2xl"} mb={2} fontFamily={"body"}>
           Filters
@@ -55,10 +74,7 @@ const Home = () => {
       </Box>
       <Box flex={4} maxH={650} overflow='hidden' overflowY={"auto"} pt={10}>
         <Flex direction='column' align='center' gap={10} marginBottom={10}>
-          <PostItem />
-          <PostItem />
-          <PostItem />
-          <PostItem />
+          {data.map(item => <PostItem key={item._id} item={item} />)}
         </Flex>
       </Box>
     </Flex>
