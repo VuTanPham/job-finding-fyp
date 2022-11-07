@@ -1,12 +1,14 @@
 const {
   signToken,
   registerAccount,
+  getProfile
 } = require("../services/authenticate.service");
 
 const login = async (req, res) => {
   if (req.isAuthenticated()) {
     res.status(200).json({
       user: req.user,
+      profile: await getProfile(req.user),
       token: signToken(req.user.username),
       isAuthenticated: req.isAuthenticated(),
     });

@@ -1,7 +1,7 @@
 const { model } = require('mongoose')
 const {User, EmployeeProfile, CompanyProfile} = require('../models')
 
-const LIMIT = 10;
+const LIMIT = 5;
 
 const updateUserProfile = async (userId, {email,location, profile}) => {
     const user = await User.findById(userId);

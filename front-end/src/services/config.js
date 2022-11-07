@@ -1,7 +1,7 @@
-export const config = {
+export const config = (token) => ({
   headers: {
     "Content-Type": "application/json",
-    Authorization: `Bearer ${JSON.parse(localStorage.getItem('account_info')).token}`
+    Authorization: `Bearer ${token}`
   },
   validateStatus: (status) => status <= 500,
-};
+});

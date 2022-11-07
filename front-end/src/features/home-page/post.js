@@ -4,13 +4,32 @@ import {
   Flex,
   Heading,
   Image,
-  Link,
   Stack,
   Text,
   useColorModeValue,
 } from "@chakra-ui/react";
+import { useContext } from "react";
+import { toast } from "react-toastify";
+import { authContext } from "../../cores/context/auth";
+import { applyToPosts } from "../../services/hiring-post.service";
 
-export default function PostItem({item}) {
+export default function PostItem({item, reload}) {
+
+  const {state: {user,profile, token}} = useContext(authContext);
+
+  const onApply = async (item) => {
+    try {
+      console.log(token);
+      const response = await applyToPosts(item._id, token);
+      if(response.status === 201) {
+        toast.success("Applied");
+        reload();
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  }
+
   return (
     <Stack
       borderWidth='1px'
@@ -88,7 +107,8 @@ export default function PostItem({item}) {
           justifyContent={"space-between"}
           alignItems={"center"}
         >
-          <Button
+          {(user.accountType === 'employee' && item.appliedCandidate?.filter(item => item === profile._id)?.length === 0) && <Button
+            onClick={() => onApply(item)}
             flex={1}
             fontSize={"sm"}
             rounded={"full"}
@@ -105,7 +125,7 @@ export default function PostItem({item}) {
             }}
           >
             Apply
-          </Button>
+          </Button>}
         </Stack>
       </Stack>
     </Stack>

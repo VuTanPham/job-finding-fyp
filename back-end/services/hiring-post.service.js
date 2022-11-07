@@ -1,25 +1,49 @@
 const { HiringPost, CompanyProfile, EmployeeProfile } = require("../models");
 
-const LIMIT = 10;
+const LIMIT = 5;
 
-const getOwnHiringPosts = async (userId, page = 1) => {
+const getOwnHiringPosts = async (userId, page = 1, searchParam='') => {
   const company = await CompanyProfile.findOne({ account: userId });
-  const ownHiringPosts = await HiringPost.find({ createBy: company._id });
+  const ownHiringPosts = await HiringPost.find({
+    $or: [
+      { title: new RegExp(searchParam, "i") },
+      { description: new RegExp(searchParam, "i") },
+    ],
+    $and: [{ createBy: company._id }],
+  });
   const totalPages = Math.ceil(ownHiringPosts.length / LIMIT);
   return {
-    data: await HiringPost.find({ createBy: company._id })
-    .skip((page - 1) * LIMIT)
-    .limit(LIMIT),
-    totalPages
+    data: await HiringPost.find({
+      $or: [
+        { title: new RegExp(searchParam, "i") },
+        { description: new RegExp(searchParam, "i") },
+      ],
+      $and: [{ createBy: company._id }],
+    })
+      .skip((page - 1) * LIMIT)
+      .limit(LIMIT),
+    totalPages,
   };
 };
 
-const getAllHiringPostInSystem = async (page = 1) => {
-  const allPosts = await HiringPost.find();
+const getAllHiringPostInSystem = async (page = 1, searchParam = "") => {
+  const allPosts = await HiringPost.find({
+    $or: [
+      { title: new RegExp(searchParam, "i") },
+      { description: new RegExp(searchParam, "i") },
+    ],
+  });
   const totalPages = Math.ceil(allPosts.length / LIMIT);
   return {
-    data: await HiringPost.find().skip((page - 1) * LIMIT).limit(LIMIT),
-    totalPages
+    data: await HiringPost.find({
+      $or: [
+        { title: new RegExp(searchParam, "i") },
+        { description: new RegExp(searchParam, "i") },
+      ],
+    })
+      .skip((page - 1) * LIMIT)
+      .limit(LIMIT),
+    totalPages,
   };
 };
 
@@ -34,7 +58,7 @@ const createHiringPost = async (userId, body) => {
     createdBy: company,
   });
   await newHiringPost.save();
-  return {data: newHiringPost};
+  return { data: newHiringPost };
 };
 
 const updateHiringPost = async (id, body) => {

@@ -13,13 +13,20 @@ export const uploadImage = async (body) => {
   }
 };
 
-export const getPost = async () => axios.get(
-  `${process.env.REACT_APP_API}/hiring-posts`,
-  config
+export const getPost = async (page, searchParam, token) => axios.get(
+  `${process.env.REACT_APP_API}/hiring-posts?page=${page}&searchParam=${searchParam}`,
+  config(token)
 );
 
-export const createPost = async (body) => axios.post(
+export const getOwnPost = async (page, searchParam, token) => axios.get(
+  `${process.env.REACT_APP_API}/hiring-posts/manage?page=${page}&searchParam=${searchParam}`,
+  config(token)
+);
+
+export const createPost = async (body, token) => axios.post(
   `${process.env.REACT_APP_API}/hiring-posts`,
   body,
-  config
+  config(token)
 );
+
+export const applyToPosts = async (postId, token) => axios.post(`${process.env.REACT_APP_API}/hiring-posts/apply`, {postId} , config(token))

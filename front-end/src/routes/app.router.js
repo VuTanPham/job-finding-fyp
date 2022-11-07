@@ -8,10 +8,11 @@ import { authContext } from "../cores/context/auth";
 import HomePage from "../features/home-page/home";
 import NotFound from "../features/not-found/not-found";
 import UserProfile from "../features/user-profile/profile";
+import ManagePosts from "../features/manage-posts";
 
 const AppRouter = () => {
   const {
-    state: { isAuthenticated },
+    state: { isAuthenticated, user },
   } = useContext(authContext);
 
   return (
@@ -28,9 +29,14 @@ const AppRouter = () => {
           <>
             <Route path='' element={<HomePage />} />
             <Route path='/user-profile' element={<UserProfile />} />
+            {user.accountType === "company" && (
+              <>
+                <Route path='/manage-posts' element={<ManagePosts />} />
+              </>
+            )}
           </>
         )}
-        <Route path="*" element={<NotFound />} />
+        <Route path='*' element={<NotFound />} />
       </Route>
     </Routes>
   );

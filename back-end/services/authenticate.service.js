@@ -62,8 +62,16 @@ const changePassword = async ({ username, oldPassword, newPassword }) => {
   }
 };
 
+const getProfile = async (user) => {
+  if(user.accountType === "company") {
+    return await CompanyProfile.findOne({account: user._id})
+  }
+  return await EmployeeProfile.findOne({account: user._id})
+}
+
 module.exports = {
   registerAccount,
   signToken,
   changePassword,
+  getProfile
 };

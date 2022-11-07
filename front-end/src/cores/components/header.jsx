@@ -69,7 +69,7 @@ export default function NavBar() {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const {
-    state: { isAuthenticated },
+    state: { isAuthenticated, user },
     dispatch,
   } = useContext(authContext);
 
@@ -105,6 +105,9 @@ export default function NavBar() {
                     {link.name}
                   </NavLink>
                 ))}
+              {user.accountType === "company" && (
+                <NavLink toLink='manage-posts'>Manage Posts</NavLink>
+              )}
             </HStack>
           </HStack>
           {isAuthenticated ? (
@@ -125,7 +128,9 @@ export default function NavBar() {
                   />
                 </MenuButton>
                 <MenuList>
-                  <MenuItem onClick={() => navigate('/user-profile')}>User Profile</MenuItem>
+                  <MenuItem onClick={() => navigate("/user-profile")}>
+                    User Profile
+                  </MenuItem>
                   <MenuDivider />
                   <MenuItem onClick={handleLogout}>Logout</MenuItem>
                 </MenuList>

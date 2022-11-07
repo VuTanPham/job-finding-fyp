@@ -3,6 +3,7 @@ import { createContext, useEffect, useReducer } from "react";
 export const authContext = createContext({
   state: {
     user: {},
+    profile: {},
     token: "",
     isAuthenticated: false,
   },
@@ -11,6 +12,7 @@ export const authContext = createContext({
 
 const initialState = {
   user: {},
+  profile: {},
   token: "",
   isAuthenticated: false,
 };
@@ -19,20 +21,20 @@ const LOGIN = "LOGIN";
 const LOGOUT = "LOGOUT";
 
 export const loginAction = (payload) => {
-  localStorage.setItem('account_info', JSON.stringify(payload));
   return { type: LOGIN, payload };
 };
 
 export const logoutAction = () => {
-  localStorage.setItem('account_info', JSON.stringify(initialState));
   return { type: LOGOUT };
 };
 
 const authReducer = (state, action) => {
   switch (action.type) {
     case LOGIN:
+      localStorage.setItem('account_info', JSON.stringify(action.payload));
       return { ...state, ...action.payload };
     case LOGOUT:
+      localStorage.setItem('account_info', JSON.stringify(initialState));
       return initialState;
     default:
       return initialState;
