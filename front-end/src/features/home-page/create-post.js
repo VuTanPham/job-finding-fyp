@@ -31,58 +31,58 @@ const CreatePostSchema = yup.object().shape({
   description: yup.string().required("Description must be filled"),
 });
 
-const CreatePostModal = ({ isOpen, onClose, data }) => {
+const CreatePostModal = ({ isOpen, onClose, data, reload }) => {
   const {
-    formState: { errors, isValid, isSubmitting },
+    formState: { errors, isValid },
     handleSubmit,
     register,
     reset,
     setValue,
-    getValues
+    getValues,
+    watch,
   } = useForm({
     mode: "all",
     resolver: yupResolver(CreatePostSchema),
     defaultValues: {
       title: "",
       description: "",
-      bannerUr: "",
+      bannerUrl: "",
     },
   });
 
   useEffect(() => {
-    data && 
-      setValue(data)
-    
-  }, [data])
+    data && setValue(data);
+  }, [data, setValue]);
 
-  const {state: {token}} = useContext(authContext);
-
-
-  const [file, setFile] = useState(null);
+  const {
+    state: { token },
+  } = useContext(authContext);
 
   const upload = async (e) => {
-    setFile(e.target.files[0]);
-    const formData = new FormData();
-        formData.append('file', file);
-        formData.append('upload_preset', 'ml_default');
-        const imageRes = await uploadImage(formData);
-        setValue('bannerUr', imageRes.data.secure_url)
+    if (e.target.files[0]) {
+      const formData = new FormData();
+      formData.append("file", e.target.files[0]);
+      formData.append("upload_preset", "ml_default");
+      const imageRes = await uploadImage(formData);
+      setValue("bannerUrl", imageRes.data.secure_url);
+    }
   };
 
   const onSubmit = async (body) => {
     try {
-        const response = await createPost({...body}, token);
-        if(response.status === 201) {
-            toast.success('Create Succeed');
-            reset();
-            onClose();
-            return;
-        }
-        toast.error('Create Failed')
+      const response = await createPost({ ...body }, token);
+      if (response.status === 201) {
+        await reload();
+        reset();
+        toast.success("Create Succeed");
+        onClose();
+        return;
+      }
+      toast.error("Create Failed");
     } catch (error) {
-        console.log(error);
+      console.log(error);
     }
-  }
+  };
 
   return (
     <Modal scrollBehavior='inside' isOpen={isOpen} onClose={onClose} size='xl'>
@@ -94,31 +94,31 @@ const CreatePostModal = ({ isOpen, onClose, data }) => {
           <Box>
             <Text>Title:</Text>
             <FormControl isInvalid={errors.title}>
-            <Input {...register("title")} placeholder='title' />
-            <ErrorMessage
-              errors={errors}
-              name='title'
-              render={({ message }) => (
-                <FormErrorMessage>{message}</FormErrorMessage>
-              )}
-            />
+              <Input {...register("title")} placeholder='title' />
+              <ErrorMessage
+                errors={errors}
+                name='title'
+                render={({ message }) => (
+                  <FormErrorMessage>{message}</FormErrorMessage>
+                )}
+              />
             </FormControl>
             <Text>Description:</Text>
             <FormControl isInvalid={errors.description}>
-            <Textarea
-              {...register("description")}
-              placeholder='Here is a sample placeholder'
-            />
-            <ErrorMessage
-              errors={errors}
-              name='description'
-              render={({ message }) => (
-                <FormErrorMessage>{message}</FormErrorMessage>
-              )}
-            />
+              <Textarea
+                {...register("description")}
+                placeholder='Here is a sample placeholder'
+              />
+              <ErrorMessage
+                errors={errors}
+                name='description'
+                render={({ message }) => (
+                  <FormErrorMessage>{message}</FormErrorMessage>
+                )}
+              />
             </FormControl>
             <Text>Image:</Text>
-            {!file && (
+            {!watch("bannerUrl") && (
               <>
                 <input
                   accept='image/png, image/gif, image/jpeg'
@@ -135,10 +135,16 @@ const CreatePostModal = ({ isOpen, onClose, data }) => {
                 />
               </>
             )}
-            {file && (
-              <Box boxSize='sm' position="relative" margin="auto">
-                <IconButton onClick={() => setFile(null)} position="absolute" top="3px" right="3px" icon={<FaTimes />} />
-                <Image src={getValues('bannerUr')} />
+            {watch("bannerUrl") && (
+              <Box boxSize='sm' position='relative' margin='auto'>
+                <IconButton
+                  onClick={() => setValue("bannerUrl")}
+                  position='absolute'
+                  top='3px'
+                  right='3px'
+                  icon={<FaTimes />}
+                />
+                <Image src={getValues("bannerUrl")} />
               </Box>
             )}
           </Box>
@@ -148,7 +154,13 @@ const CreatePostModal = ({ isOpen, onClose, data }) => {
           <Button mr={3} onClick={onClose}>
             Close
           </Button>
-          <Button disabled={!isValid} colorScheme='blue' onClick={handleSubmit(onSubmit)}>Create</Button>
+          <Button
+            disabled={!isValid}
+            colorScheme='blue'
+            onClick={handleSubmit(onSubmit)}
+          >
+            Create
+          </Button>
         </ModalFooter>
       </ModalContent>
     </Modal>

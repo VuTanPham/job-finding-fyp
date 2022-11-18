@@ -7,6 +7,9 @@ const UserSchema = new mongoose.Schema({
     email: String,
     location: String,
     avatarUrl: String,
+    aboutUser: String,
+    socketId: String,
+    banned: {type: Boolean, default: false},
     accountType: {type: String, enum: ['employee', 'company', 'admin']},
 }, {timestamps: true})
 

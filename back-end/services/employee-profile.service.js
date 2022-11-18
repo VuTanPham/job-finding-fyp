@@ -1,4 +1,4 @@
-const {EmployeeProfile, EmployeeExperience} = require('../models');
+const {EmployeeProfile, EmployeeExperience, Project} = require('../models');
 
 
 const addNewExperience = async (userId, experience) => {
@@ -20,8 +20,17 @@ const updateExperience = async (expId, updateExp) => {
     await EmployeeExperience.findByIdAndUpdate(expId, updateExp);
 }
 
+const addNewProject = async (userId, project) => {
+    const employee = await EmployeeProfile.findOne({account: userId});
+    const newProject = new Project({...project});
+    await newProject.save();
+    employee.projects.push(newProject);
+    await employee.save();
+}
+
 module.exports = {
     addNewExperience,
     removeExperience,
-    updateExperience
+    updateExperience,
+    addNewProject
 }

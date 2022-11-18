@@ -3,10 +3,12 @@ const {User, EmployeeProfile, CompanyProfile} = require('../models')
 
 const LIMIT = 5;
 
-const updateUserProfile = async (userId, {email,location, profile}) => {
+const updateUserProfile = async (userId, {email,location, profile, avatarUrl, aboutUser}) => {
     const user = await User.findById(userId);
     user.email = email;
     user.location = location;
+    user.avatarUrl = avatarUrl;
+    user.aboutUser = aboutUser;
     await user.save();
     if(user.accountType === 'company') {
       await CompanyProfile.findOneAndUpdate({account: userId}, {...profile});  
@@ -38,5 +40,8 @@ const getUserDetail = async (userId) => {
     return {data}
 }
 
+const changeUserBanStatus = async (userId, status) => {
+    await User.findByIdAndUpdate(userId, {banned: status});
+}
 
-module.exports = {updateUserProfile, getAllUsers, getUserDetail}
+module.exports = {updateUserProfile, getAllUsers, getUserDetail, changeUserBanStatus}

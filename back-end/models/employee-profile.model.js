@@ -10,6 +10,7 @@ const EmployeeProfileSchema = new mongoose.Schema(
       { type: mongoose.Schema.Types.ObjectId, ref: "employee-experiences" },
     ],
     account: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
+    projects: [{type: mongoose.Schema.Types.ObjectId, ref: 'projects'}]
   },
   { timestamps: true }
 );

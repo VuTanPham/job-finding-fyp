@@ -36,6 +36,7 @@ const ManagePosts = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const [data, setData] = useState([]);
+  const [selectedValue, setSelectedValue] = useState(null);
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchParam, setSearchParam] = useState("");
@@ -60,7 +61,7 @@ const ManagePosts = () => {
 
   return (
     <Box w={"80%"} margin='auto' mt={10}>
-      <CreatePostModal isOpen={isOpen} onClose={onClose} />
+      <CreatePostModal isOpen={isOpen} onClose={() => {setSelectedValue(null); onClose()}} />
 
       <Flex alignItems={"center"} justifyContent='space-between'>
         <Box>
@@ -115,7 +116,7 @@ const ManagePosts = () => {
                       color='white'
                       colorScheme={"teal"}
                       icon={<FaEdit />}
-                      onClick={onOpen}
+                      onClick={() => {setSelectedValue(item); onOpen()}}
                     />
                     <IconButton
                       bg='red'

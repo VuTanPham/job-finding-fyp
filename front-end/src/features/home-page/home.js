@@ -46,7 +46,7 @@ const Home = () => {
 
   return (
     <>
-      <CreatePostModal isOpen={isOpen} onClose={onClose} />
+      <CreatePostModal isOpen={isOpen} onClose={onClose} reload={getData} />
       <Flex>
         <Box flex={1} pl={20} pt={10}>
           <Heading fontSize={"2xl"} mb={2} fontFamily={"body"}>
