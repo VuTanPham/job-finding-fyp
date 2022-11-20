@@ -28,9 +28,22 @@ const addNewProject = async (userId, project) => {
     await employee.save();
 }
 
+const removeProject = async (userId, pjId) => {
+    const employee = await EmployeeProfile.findOne({account: userId}).populate('experiences', '_id');
+    employee.projects = employee.projects.fill(item => item._id !== pjId);
+    await employee.save()
+    await Project.findByIdAndDelete(pjId);
+}
+
+const updateProject = async (pjId, project) => {
+    await Project.findByIdAndUpdate(pjId, project);
+}
+
 module.exports = {
     addNewExperience,
     removeExperience,
     updateExperience,
-    addNewProject
+    addNewProject,
+    updateProject,
+    removeProject
 }

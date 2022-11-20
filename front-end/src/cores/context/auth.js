@@ -19,9 +19,14 @@ const initialState = {
 
 const LOGIN = "LOGIN";
 const LOGOUT = "LOGOUT";
+const UPDATE = "UPDATE";
 
 export const loginAction = (payload) => {
   return { type: LOGIN, payload };
+};
+
+export const updateAction = (payload) => {
+  return { type: UPDATE, payload };
 };
 
 export const logoutAction = () => {
@@ -33,6 +38,9 @@ const authReducer = (state, action) => {
     case LOGIN:
       localStorage.setItem('account_info', JSON.stringify(action.payload));
       return { ...state, ...action.payload };
+    case UPDATE:
+      localStorage.setItem('account_info', JSON.stringify({ ...state, user: {...state.user, ...action.payload} }));
+      return { ...state, user: {...state.user, ...action.payload} };
     case LOGOUT:
       localStorage.setItem('account_info', JSON.stringify(initialState));
       return initialState;

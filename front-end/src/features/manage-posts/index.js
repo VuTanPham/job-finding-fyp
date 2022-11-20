@@ -60,7 +60,7 @@ const ManagePosts = () => {
   }, [getData]);
 
   return (
-    <Box w={"80%"} margin='auto' mt={10}>
+    <Box w={"80%"} margin='auto' bg="white" p={10} borderRadius="20">
       <CreatePostModal isOpen={isOpen} onClose={() => {setSelectedValue(null); onClose()}} />
 
       <Flex alignItems={"center"} justifyContent='space-between'>

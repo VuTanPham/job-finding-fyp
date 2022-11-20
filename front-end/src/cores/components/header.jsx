@@ -122,10 +122,11 @@ export default function NavBar() {
                 >
                   <Avatar
                     size={"sm"}
+                    src={user?.avatarUrl}
                   />
                 </MenuButton>
                 <MenuList>
-                  <MenuItem onClick={() => navigate("/user-profile")}>
+                  <MenuItem onClick={() => navigate(`/user-profile/${user._id}`)}>
                     User Profile
                   </MenuItem>
                   <MenuDivider />

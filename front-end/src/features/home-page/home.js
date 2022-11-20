@@ -58,7 +58,7 @@ const Home = () => {
             />
             <Input
               value={searchParam}
-              onChange={(e) => setSearchParam(e.target.value)}
+              onChange={(e) => {setSearchParam(e.target.value); setCurrentPage(1)}}
               placeholder='Search...'
             />
           </InputGroup>
@@ -102,7 +102,7 @@ const Home = () => {
             </Button>
           </Flex>
         </Box>
-        <Box flex={4} maxH={650} overflow='hidden' overflowY={"auto"} pt={10}>
+        <Box flex={4} maxH="85vh" overflow='hidden' overflowY={"auto"} pt={10}>
           <Flex direction='column' align='center' gap={10} marginBottom={10}>
             {data?.map((item) => (
               <PostItem key={item._id} item={item} reload={getData} />

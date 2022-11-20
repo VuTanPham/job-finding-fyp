@@ -1,25 +1,30 @@
 const { HiringPost, CompanyProfile, EmployeeProfile } = require("../models");
+const { populate } = require("../models/message.model");
 
 const LIMIT = 5;
 
-const getOwnHiringPosts = async (userId, page = 1, searchParam='') => {
+const getOwnHiringPosts = async (userId, page = 1, searchParam = "") => {
   const company = await CompanyProfile.findOne({ account: userId });
   const ownHiringPosts = await HiringPost.find({
     $or: [
       { title: new RegExp(searchParam, "i") },
       { description: new RegExp(searchParam, "i") },
     ],
-    $and: [{ createBy: company._id }],
+    $and: [{ createdBy: company._id }],
   });
   const totalPages = Math.ceil(ownHiringPosts.length / LIMIT);
   return {
-    data: await HiringPost.find({
-      $or: [
-        { title: new RegExp(searchParam, "i") },
-        { description: new RegExp(searchParam, "i") },
-      ],
-      $and: [{ createBy: company._id }],
-    })
+    data: await HiringPost.find(
+      {
+        $or: [
+          { title: new RegExp(searchParam, "i") },
+          { description: new RegExp(searchParam, "i") },
+        ],
+        $and: [{ createdBy: company._id }],
+      },
+      null,
+      { populate: { path: "createdBy", populate: { path: "account" } } }
+    )
       .skip((page - 1) * LIMIT)
       .limit(LIMIT),
     totalPages,
@@ -35,12 +40,16 @@ const getAllHiringPostInSystem = async (page = 1, searchParam = "") => {
   });
   const totalPages = Math.ceil(allPosts.length / LIMIT);
   return {
-    data: await HiringPost.find({
-      $or: [
-        { title: new RegExp(searchParam, "i") },
-        { description: new RegExp(searchParam, "i") },
-      ],
-    })
+    data: await HiringPost.find(
+      {
+        $or: [
+          { title: new RegExp(searchParam, "i") },
+          { description: new RegExp(searchParam, "i") },
+        ],
+      },
+      null,
+      { populate: { path: "createdBy", populate: { path: "account" } } }
+    )
       .skip((page - 1) * LIMIT)
       .limit(LIMIT),
     totalPages,
@@ -48,7 +57,9 @@ const getAllHiringPostInSystem = async (page = 1, searchParam = "") => {
 };
 
 const getHiringPostById = async (id) => {
-  return await HiringPost.findById(id);
+  return await HiringPost.findById(id, null, {
+    populate: { path: "createdBy", populate: { path: "account" } },
+  });
 };
 
 const createHiringPost = async (userId, body) => {

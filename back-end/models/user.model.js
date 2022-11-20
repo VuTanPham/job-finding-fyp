@@ -9,6 +9,8 @@ const UserSchema = new mongoose.Schema({
     avatarUrl: String,
     aboutUser: String,
     socketId: String,
+    bannerLink: String,
+    introduction: String,
     banned: {type: Boolean, default: false},
     accountType: {type: String, enum: ['employee', 'company', 'admin']},
 }, {timestamps: true})

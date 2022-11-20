@@ -28,7 +28,7 @@ const AppRouter = () => {
         {isAuthenticated && (
           <>
             <Route path='' element={<HomePage />} />
-            <Route path='/user-profile' element={<UserProfile />} />
+            <Route path='/user-profile/:id' element={<UserProfile />} />
             {user.accountType === "company" && (
               <>
                 <Route path='/manage-posts' element={<ManagePosts />} />
