@@ -11,7 +11,7 @@ import {
 import { useContext } from "react";
 import { toast } from "react-toastify";
 import { authContext } from "../../cores/context/auth";
-import { applyToPosts } from "../../services/hiring-post.service";
+import { applyToPost } from "../../services/hiring-post.service";
 
 export default function PostItem({item, reload}) {
 
@@ -20,7 +20,7 @@ export default function PostItem({item, reload}) {
   const onApply = async (item) => {
     try {
       console.log(token);
-      const response = await applyToPosts(item._id, token);
+      const response = await applyToPost(item._id, token);
       if(response.status === 201) {
         toast.success("Applied");
         reload();

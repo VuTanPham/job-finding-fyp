@@ -29,4 +29,12 @@ export const createPost = async (body, token) => axios.post(
   config(token)
 );
 
-export const applyToPosts = async (postId, token) => axios.post(`${process.env.REACT_APP_API}/hiring-posts/apply`, {postId} , config(token))
+export const applyToPost = async (postId, token) => axios.post(`${process.env.REACT_APP_API}/hiring-posts/apply`, {postId} , config(token))
+
+export const updatePost = async (id, body, token) => axios.put(
+  `${process.env.REACT_APP_API}/hiring-posts/${id}`,
+  body,
+  config(token)
+);
+
+export const removePost = async (id, token) => axios.delete(`${process.env.REACT_APP_API}/hiring-posts/${id}`, config(token))

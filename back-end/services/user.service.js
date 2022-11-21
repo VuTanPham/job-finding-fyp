@@ -32,9 +32,9 @@ const getUserDetail = async (userId) => {
       populate: [{ path: "account" }, { path: "industryField" }],
     });
   } else {
-    data = await EmployeeProfile.findOne({ account: userId }).populate(
-      "account"
-    );
+    data = await EmployeeProfile.findOne({ account: userId}, null , {
+      populate: [{ path: "account" }, { path: "experiences" }, {path: 'projects'}]
+    });
   }
   return data;
 };

@@ -8,6 +8,7 @@ const UserSchema = new mongoose.Schema({
     location: String,
     avatarUrl: String,
     aboutUser: String,
+    bannerUrl: String,
     socketId: String,
     bannerLink: String,
     introduction: String,

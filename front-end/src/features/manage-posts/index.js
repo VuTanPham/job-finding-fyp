@@ -28,8 +28,9 @@ import {
   FaSearch,
   FaTrash,
 } from "react-icons/fa";
+import { toast } from "react-toastify";
 import { authContext } from "../../cores/context/auth";
-import { getOwnPost } from "../../services/hiring-post.service";
+import { getOwnPost, removePost } from "../../services/hiring-post.service";
 import CreatePostModal from "../home-page/create-post";
 
 const ManagePosts = () => {
@@ -55,13 +56,25 @@ const ManagePosts = () => {
     }
   }, [currentPage, searchParam, token]);
 
+  const deletePost = async (id) => {
+    try {
+      const response = await removePost(id, token);
+      if(response.status === 200) {
+        toast.success('Post deleted');
+        getData();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  } 
+
   useEffect(() => {
     getData();
   }, [getData]);
 
   return (
     <Box w={"80%"} margin='auto' bg="white" p={10} borderRadius="20">
-      <CreatePostModal isOpen={isOpen} onClose={() => {setSelectedValue(null); onClose()}} />
+      <CreatePostModal reload={getData} data={selectedValue} isOpen={isOpen} onClose={() => {setSelectedValue(null); onClose()}} />
 
       <Flex alignItems={"center"} justifyContent='space-between'>
         <Box>
@@ -108,7 +121,7 @@ const ManagePosts = () => {
                     {item.description}
                   </Text>
                 </Td>
-                <Td isNumeric>{item.appliedCandidate.length}</Td>
+                <Td isNumeric>{item.appliedCandidate?.length}</Td>
                 <Td>
                   <Flex gap={5}>
                     <IconButton
@@ -122,6 +135,7 @@ const ManagePosts = () => {
                       bg='red'
                       color='white'
                       icon={<FaTrash />}
+                      onClick={() => deletePost(item._id)}
                       colorScheme={"teal"}
                     />
                   </Flex>

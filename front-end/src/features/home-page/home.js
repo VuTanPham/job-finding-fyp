@@ -1,8 +1,6 @@
 import {
   Box,
   Flex,
-  Stack,
-  Checkbox,
   Heading,
   Input,
   InputGroup,
@@ -16,7 +14,6 @@ import CreatePostModal from "./create-post";
 import { getPost } from "../../services/hiring-post.service";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { authContext } from "../../cores/context/auth";
-import { debounce } from "lodash";
 
 const Home = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -52,14 +49,16 @@ const Home = () => {
           <Heading fontSize={"2xl"} mb={2} fontFamily={"body"}>
             Search
           </Heading>
-          <InputGroup size='lg' mb={5}>
+          <InputGroup size='lg' mb={5} bgColor="white">
             <InputLeftAddon
               children={<FaSearch size={14} />}
+              bgColor="white"
             />
             <Input
               value={searchParam}
               onChange={(e) => {setSearchParam(e.target.value); setCurrentPage(1)}}
               placeholder='Search...'
+              bgColor="white"
             />
           </InputGroup>
 

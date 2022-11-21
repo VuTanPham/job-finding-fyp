@@ -25,7 +25,6 @@ import { authContext, logoutAction } from "../context/auth";
 
 const Links = [
   { name: "Home", to: "" },
-  { name: "Job Applied", to: "job-applied" },
   { name: "Connections", to: "connections" },
 ];
 
@@ -76,6 +75,7 @@ export default function NavBar() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
+    navigate("/");
     dispatch(logoutAction());
   };
 
@@ -105,9 +105,9 @@ export default function NavBar() {
                     {link.name}
                   </NavLink>
                 ))}
-              {user.accountType === "company" && (
+              {user.accountType === "company" ? 
                 <NavLink toLink='manage-posts'>Manage Posts</NavLink>
-              )}
+              : <NavLink toLink='applied-posts'>Job Applied</NavLink>}
             </HStack>
           </HStack>
           {isAuthenticated ? (

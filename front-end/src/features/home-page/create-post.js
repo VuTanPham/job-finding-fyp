@@ -24,7 +24,7 @@ import { FaTimes, FaUpload } from "react-icons/fa";
 import { toast } from "react-toastify";
 import * as yup from "yup";
 import { authContext } from "../../cores/context/auth";
-import { createPost, uploadImage } from "../../services/hiring-post.service";
+import { createPost, updatePost, uploadImage } from "../../services/hiring-post.service";
 
 const CreatePostSchema = yup.object().shape({
   title: yup.string().required("Title must be filled"),
@@ -51,7 +51,15 @@ const CreatePostModal = ({ isOpen, onClose, data, reload }) => {
   });
 
   useEffect(() => {
-    data && setValue(data);
+    if(data) {
+      setValue('title', data?.title);
+      setValue('description', data?.description);
+      setValue('bannerUrl', data?.bannerUrl);
+    }
+
+    return () => {
+      reset();
+    }
   }, [data, setValue]);
 
   const {
@@ -75,6 +83,22 @@ const CreatePostModal = ({ isOpen, onClose, data, reload }) => {
         await reload();
         reset();
         toast.success("Create Succeed");
+        onClose();
+        return;
+      }
+      toast.error("Create Failed");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const onUpdate = async (body) => {
+    try {
+      const response = await updatePost(data?._id,{ ...body }, token);
+      if (response.status === 200) {
+        await reload();
+        reset();
+        toast.success("Update Succeed");
         onClose();
         return;
       }
@@ -157,9 +181,9 @@ const CreatePostModal = ({ isOpen, onClose, data, reload }) => {
           <Button
             disabled={!isValid}
             colorScheme='blue'
-            onClick={handleSubmit(onSubmit)}
+            onClick={data ? handleSubmit(onUpdate) : handleSubmit(onSubmit)}
           >
-            Create
+            {data ? 'Update': 'Create'}
           </Button>
         </ModalFooter>
       </ModalContent>
