@@ -1,14 +1,25 @@
-import { Box, Flex, Image, Text } from "@chakra-ui/react";
-import banner from "../../../assets/no-info.png";
+import { Box, Flex, IconButton, Image, Text, useDisclosure } from "@chakra-ui/react";
 import moment from "moment";
-import { FaExternalLinkAlt, FaRegArrowAltCircleUp } from "react-icons/fa";
+import { FaExternalLinkAlt, FaPen } from "react-icons/fa";
+import ProjectModal from "./project-modal";
 
-const ProjectItem = ({ item }) => {
+const ProjectItem = ({ item, reload }) => {
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
   return (
     <Box pb={10} mb={10} borderBottomColor='#6c706d' borderBottomWidth='thin'>
+      <ProjectModal
+          isOpen={isOpen}
+          onClose={onClose}
+          reload={reload}
+          data={item}
+        />
       <Flex gap={5}>
         <Box>
-          <Text fontSize={24} fontWeight='bold'>
+          <Flex justifyContent="space-between" pr={10}>
+            <Box>
+            <Text fontSize={24} fontWeight='bold'>
             {item?.name}
           </Text>
           {item?.isCurrent ? (
@@ -37,6 +48,13 @@ const ProjectItem = ({ item }) => {
               </Text>
             </>
           )}
+            </Box>
+            <IconButton
+              color='gray'
+              icon={<FaPen />}
+              onClick={onOpen}
+            />
+          </Flex>
           <a href={item?.repositoryUrl} target="_blank" style={{display: 'flex', alignItems: 'center', gap: 10, width: "fit-content", padding: "10px 20px", border: '1px solid gray', borderRadius: 20, marginTop: 5}}>
             <span>Visit Project</span>
             <FaExternalLinkAlt />

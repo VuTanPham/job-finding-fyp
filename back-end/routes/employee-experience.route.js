@@ -6,7 +6,7 @@ const authorize = require('../middleware/authorization.middleware')
 employeeRouter.use([authorize('employee')]);
 
 employeeRouter.post('/', addOne);
-employeeRouter.put('/:pjId', updateOne);
-employeeRouter.delete('/:pjId', removeOne);
+employeeRouter.put('/:expId', updateOne);
+employeeRouter.delete('/:exId', removeOne);
 
 module.exports = employeeRouter;

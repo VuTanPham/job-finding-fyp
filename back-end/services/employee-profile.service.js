@@ -36,7 +36,7 @@ const removeProject = async (userId, pjId) => {
 }
 
 const updateProject = async (pjId, project) => {
-    await Project.findByIdAndUpdate(pjId, project);
+    await Project.findByIdAndUpdate(pjId, {...project});
 }
 
 module.exports = {

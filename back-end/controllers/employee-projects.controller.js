@@ -21,7 +21,7 @@ const removeOne = async (req, res) => {
 
 const updateOne = async (req, res) => {
     try {
-        await updateProject(req.pjId.expId, req.body)
+        await updateProject(req.params.pjId, req.body)
         res.status(204).json();
     } catch (error) {
         res.status(500).json({message: error.message})

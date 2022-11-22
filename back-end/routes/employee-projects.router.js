@@ -6,7 +6,7 @@ const authorize = require('../middleware/authorization.middleware')
 employeeProject.use([authorize('employee')]);
 
 employeeProject.post('/', addOne);
-employeeProject.put('/:expId', updateOne);
-employeeProject.delete('/:expId', removeOne);
+employeeProject.put('/:pjId', updateOne);
+employeeProject.delete('/:pjId', removeOne);
 
 module.exports = employeeProject;

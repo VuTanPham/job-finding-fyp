@@ -1,195 +1,37 @@
-import {
-  Box,
-  Button,
-  Checkbox,
-  FormControl,
-  FormErrorMessage,
-  Input,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  Text,
-  Textarea,
-} from "@chakra-ui/react";
-import { ErrorMessage } from "@hookform/error-message";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { useContext, useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "react-toastify";
-import * as yup from "yup";
-import { authContext } from "../../../cores/context/auth";
-import { addNewExperience } from "../../../services/profile.service";
+import { Box, Flex, IconButton, useDisclosure, Text } from "@chakra-ui/react";
+import { FaPlus } from "react-icons/fa";
+import ExperienceItem from "./experience-item";
+import ExperienceModal from "./experience-modal";
 
-const ExperienceValidateSchema = yup.object().shape({
-  companyName: yup.string().required("Company name must be filled"),
-  jobPosition: yup.string().required("Job Position must be filled"),
-  description: yup.string().required("Description must be filled"),
-  startDate: yup.date().required("Start date must be filled"),
-});
+const Experience = ({ experiences, reload, id, user }) => {
 
-const ExperienceModal = ({ isOpen, onClose, data, reload }) => {
-  const {
-    formState: { errors, isValid },
-    handleSubmit,
-    register,
-    reset,
-    setValue,
-    clearErrors
-  } = useForm({
-    mode: "all",
-    resolver: yupResolver(ExperienceValidateSchema),
-    defaultValues: {
-      companyName: "",
-      jobPosition: "",
-      description: "",
-      startDate: null,
-      endDate: null,
-    },
-  });
-
-  const [isCurrent, setIsCurrent] = useState(false);
-
-  useEffect(() => {
-    // if (data) {
-    //   setValue("title", data?.title);
-    //   setValue("description", data?.description);
-    //   setValue("bannerUrl", data?.bannerUrl);
-    // }
-
-    return () => {
-      reset();
-      clearErrors()
-    };
-  }, [data, setValue]);
-
-  const {
-    state: { token, user },
-  } = useContext(authContext);
-
-  const onSubmit = async (body) => {
-    try {
-      const response = await addNewExperience(user?._id, { ...body, isCurrent }, token);
-      if (response.status === 201) {
-        await reload();
-        reset();
-        toast.success("Add Experience Succeed");
-        onClose();
-        return;
-      }
-      toast.error("Add Experience Failed");
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const onUpdate = async (body) => {
-    // try {
-    //   const response = await updatePost(data?._id, { ...body }, token);
-    //   if (response.status === 200) {
-    //     await reload();
-    //     reset();
-    //     toast.success("Update Succeed");
-    //     onClose();
-    //     return;
-    //   }
-    //   toast.error("Create Failed");
-    // } catch (error) {
-    //   console.log(error);
-    // }
-  };
+    const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
-    <Modal scrollBehavior='inside' isOpen={isOpen} onClose={onClose} size='xl'>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Add New Experience</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
-          <Box>
-            <Text>Company Name:</Text>
-            <FormControl isInvalid={errors.companyName}>
-              <Input {...register("companyName")} placeholder='Company Name' />
-              <ErrorMessage
-                errors={errors}
-                name='companyName'
-                render={({ message }) => (
-                  <FormErrorMessage>{message}</FormErrorMessage>
-                )}
-              />
-            </FormControl>
-            <Text>Job Position:</Text>
-            <FormControl isInvalid={errors.jobPosition}>
-              <Input {...register("jobPosition")} placeholder='Job Position' />
-              <ErrorMessage
-                errors={errors}
-                name='jobPosition'
-                render={({ message }) => (
-                  <FormErrorMessage>{message}</FormErrorMessage>
-                )}
-              />
-            </FormControl>
-            <Text>Job Description:</Text>
-            <FormControl isInvalid={errors.description}>
-              <Textarea
-                {...register("description")}
-                placeholder='What are you doing here?'
-              />
-              <ErrorMessage
-                errors={errors}
-                name='description'
-                render={({ message }) => (
-                  <FormErrorMessage>{message}</FormErrorMessage>
-                )}
-              />
-            </FormControl>
-            <Text>Start Date:</Text>
-            <FormControl>
-              <Input
-                {...register("startDate")}
-                type='date'
-                placeholder='Start Date'
-              />
-            </FormControl>
-            <Text>Is Your Current Job:</Text>
-            <FormControl>
-              <Checkbox size='md' colorScheme='green' value={isCurrent} onChange={(e) => setIsCurrent(e.target.checked)}>
-                Yes
-              </Checkbox>
-            </FormControl>
-            {!isCurrent && (
-              <>
-                <Text>End Date:</Text>
-                <FormControl>
-                  <Input
-                    {...register("endDate")}
-                    type='date'
-                    placeholder='End Date'
-                  />
-                </FormControl>
-              </>
-            )}
-          </Box>
-        </ModalBody>
-
-        <ModalFooter>
-          <Button mr={3} onClick={onClose}>
-            Close
-          </Button>
-          <Button
-            disabled={!isValid}
-            colorScheme='blue'
-            onClick={data ? handleSubmit(onUpdate) : handleSubmit(onSubmit)}
-          >
-            {data ? "Update" : "Create"}
-          </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+    <Box my={10} py={10} px={5} bg='white' borderRadius={20}>
+      <ExperienceModal isOpen={isOpen} onClose={onClose} reload={reload} />
+      <Flex justifyContent={"space-between"} alignItems='center' mb={5}>
+        <Text fontWeight='bold' fontSize='20'>
+          Experience
+        </Text>
+        {user._id === id && (
+          <IconButton
+            color='blue'
+            icon={<FaPlus />}
+            onClick={() => {
+              onOpen();
+            }}
+          />
+        )}
+      </Flex>
+      <Box>
+        {experiences?.map((item) => (
+          <ExperienceItem item={item} key={item._id} reload={reload} />
+        ))}
+      </Box>
+    </Box>
   );
 };
 
-export default ExperienceModal;
+
+export default Experience;

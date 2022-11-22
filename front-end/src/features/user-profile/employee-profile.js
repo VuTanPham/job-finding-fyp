@@ -24,10 +24,12 @@ import {
 } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import ExperienceModal from "./employee-profile/experience";
+import ExperienceModal from "./employee-profile/experience-modal";
 import ExperienceItem from "./employee-profile/experience-item";
 import ProjectItem from "./employee-profile/project-item";
-import ProjectModal from "./employee-profile/project";
+import ProjectModal from "./employee-profile/project-modal";
+import Project from "./employee-profile/project";
+import Experience from "./employee-profile/experience";
 
 const EmployeeProfile = () => {
   const {
@@ -38,10 +40,6 @@ const EmployeeProfile = () => {
   const [profile, setProfile] = useState({});
   const [introduction, setIntroduction] = useState("");
   const [isIntroEdit, setIsIntroEdit] = useState(false);
-
-  const { isOpen, onOpen, onClose } = useDisclosure();
-
-  const [modalType, setModalType] = useState("");
 
   const getEmployeeProfile = useCallback(async () => {
     try {
@@ -94,20 +92,6 @@ const EmployeeProfile = () => {
 
   return (
     <Box border='none'>
-      {modalType === "experience" ? (
-        <ExperienceModal
-          isOpen={isOpen}
-          onClose={onClose}
-          reload={getEmployeeProfile}
-        />
-      ) : (
-        <ProjectModal
-          isOpen={isOpen}
-          onClose={onClose}
-          reload={getEmployeeProfile}
-        />
-      )}
-
       <Box bg='white' pb='10' borderRadius={20}>
         <Box position='relative'>
           <Image
@@ -183,51 +167,9 @@ const EmployeeProfile = () => {
         )}
       </Box>
 
-      <Box my={10} py={10} px={5} bg='white' borderRadius={20}>
-        <Flex justifyContent={"space-between"} alignItems='center' mb={5}>
-          <Text fontWeight='bold' fontSize='20'>
-            Experience
-          </Text>
-          {user.accountType === "employee" && (
-            <IconButton
-              color='blue'
-              icon={<FaPlus />}
-              onClick={() => {
-                setModalType("experience");
-                onOpen();
-              }}
-            />
-          )}
-        </Flex>
-        <Box>
-          {profile?.experiences?.map((item) => (
-            <ExperienceItem item={item} key={item._id} />
-          ))}
-        </Box>
-      </Box>
+      <Experience experiences={profile?.experiences} user={user} reload={getEmployeeProfile} id={user?._id} />
 
-      <Box my={10} py={10} px={5} bg='white' borderRadius={20}>
-        <Flex justifyContent={"space-between"} alignItems='center' mb={5}>
-          <Text fontWeight='bold' fontSize='20'>
-            Project
-          </Text>
-          {user.accountType === "employee" && (
-            <IconButton
-              color='blue'
-              icon={<FaPlus />}
-              onClick={() => {
-                setModalType("project");
-                onOpen();
-              }}
-            />
-          )}
-        </Flex>
-        <Box>
-          {profile?.projects?.map((item) => (
-            <ProjectItem item={item} key={item._id} />
-          ))}
-        </Box>
-      </Box>
+      <Project projects={profile?.projects} user={user} reload={getEmployeeProfile} id={user?._id} />
     </Box>
   );
 };
