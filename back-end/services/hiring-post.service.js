@@ -1,5 +1,4 @@
 const { HiringPost, CompanyProfile, EmployeeProfile } = require("../models");
-const { populate } = require("../models/message.model");
 
 const LIMIT = 5;
 
@@ -21,6 +20,26 @@ const getOwnHiringPosts = async (userId, page = 1, searchParam = "") => {
           { description: new RegExp(searchParam, "i") },
         ],
         $and: [{ createdBy: company._id }],
+      },
+      null,
+      { populate: { path: "createdBy", populate: { path: "account" } } }
+    )
+      .skip((page - 1) * LIMIT)
+      .limit(LIMIT),
+    totalPages,
+  };
+};
+
+const getAppliedPosts = async (userId, page = 1) => {
+  const employee = await EmployeeProfile.findOne({ account: userId });
+  const ownHiringPosts = await HiringPost.find({
+    appliedCandidate: employee._id
+  });
+  const totalPages = Math.ceil(ownHiringPosts.length / LIMIT);
+  return {
+    data: await HiringPost.find(
+      {
+        appliedCandidate: employee._id
       },
       null,
       { populate: { path: "createdBy", populate: { path: "account" } } }
@@ -92,6 +111,18 @@ const applyToHiringPost = async (userId, postId) => {
   }
 };
 
+const undoApplied = async (userId, postId) => {
+  const candidate = await EmployeeProfile.findOne({ account: userId });
+  const hiringPost = await HiringPost.findById(postId);
+  if (!hiringPost.appliedCandidate.includes(candidate._id)) {
+    throw new Error("You had not applied this job yet");
+  } else {
+    hiringPost.appliedCandidate = hiringPost.appliedCandidate.filter(item => item.toString() != candidate._id?.toString());
+    await hiringPost.save();
+    return hiringPost;
+  }
+}
+
 module.exports = {
   getAllHiringPostInSystem,
   getHiringPostById,
@@ -100,4 +131,6 @@ module.exports = {
   updateHiringPost,
   removeHiringPost,
   applyToHiringPost,
+  getAppliedPosts,
+  undoApplied
 };

@@ -85,7 +85,7 @@ const ManagePosts = () => {
             <InputLeftAddon children={<FaSearch size={14} />} />
             <Input
               value={searchParam}
-              onChange={(e) => setSearchParam(e.target.value)}
+              onChange={(e) => {setSearchParam(e.target.value); setCurrentPage(1)}}
               placeholder='Search...'
             />
           </InputGroup>

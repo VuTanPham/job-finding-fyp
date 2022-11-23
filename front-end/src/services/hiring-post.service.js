@@ -23,6 +23,17 @@ export const getOwnPost = async (page, searchParam, token) => axios.get(
   config(token)
 );
 
+export const getAppliedPost = async (page, token) => axios.get(
+  `${process.env.REACT_APP_API}/hiring-posts/job-applied?page=${page}`,
+  config(token)
+);
+
+export const undoApplied = async (postId, token) => axios.put(
+  `${process.env.REACT_APP_API}/hiring-posts/job-applied/undo`,
+  {postId},
+  config(token)
+);
+
 export const createPost = async (body, token) => axios.post(
   `${process.env.REACT_APP_API}/hiring-posts`,
   body,

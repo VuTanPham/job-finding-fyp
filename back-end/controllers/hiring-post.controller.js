@@ -5,6 +5,8 @@ const {
   updateHiringPost,
   removeHiringPost,
   applyToHiringPost,
+  getAppliedPosts,
+  undoApplied,
 } = require("../services/hiring-post.service");
 
 const getAllHiringPosts = async (req, res) => {
@@ -18,15 +20,38 @@ const getAllHiringPosts = async (req, res) => {
 };
 
 const getAllOwnHiringPosts = async (req, res) => {
-    const { _id } = req.user;
-    const { page, searchParam } = req.query;
-    try {
-        const results = await getOwnHiringPosts(_id, page, searchParam)
-        res.status(200).json(results);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+  const { _id } = req.user;
+  const { page, searchParam } = req.query;
+  try {
+    const results = await getOwnHiringPosts(_id, page, searchParam);
+    res.status(200).json(results);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
+
+const getPostsApplied = async (req, res) => {
+  const { _id } = req.user;
+  const { page } = req.query;
+  try {
+    const results = await getAppliedPosts(_id, page);
+    res.status(200).json(results);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const undoAppliedPost = async (req, res) => {
+  const { _id } = req.user;
+  const { postId } = req.body;
+  try {
+    const results = await undoApplied(_id, postId);
+    res.status(200).json(results);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 
 const create = async (req, res) => {
   const { _id } = req.user;
@@ -63,14 +88,14 @@ const remove = async (req, res) => {
 
 const applyToPost = async (req, res) => {
   const { _id } = req.user;
-  const {postId} = req.body;
+  const { postId } = req.body;
   try {
     await applyToHiringPost(_id, postId);
     res.status(201).json({ message: "Applied" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-}
+};
 
 module.exports = {
   getAllHiringPosts,
@@ -78,5 +103,7 @@ module.exports = {
   update,
   remove,
   getAllOwnHiringPosts,
-  applyToPost
+  applyToPost,
+  getPostsApplied,
+  undoAppliedPost
 };

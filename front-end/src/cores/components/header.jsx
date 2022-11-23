@@ -105,9 +105,9 @@ export default function NavBar() {
                     {link.name}
                   </NavLink>
                 ))}
-              {user.accountType === "company" ? 
+              {isAuthenticated && (user.accountType === "company" ? 
                 <NavLink toLink='manage-posts'>Manage Posts</NavLink>
-              : <NavLink toLink='applied-posts'>Job Applied</NavLink>}
+              : <NavLink toLink='applied-posts'>Job Applied</NavLink>)}
             </HStack>
           </HStack>
           {isAuthenticated ? (

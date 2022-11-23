@@ -9,6 +9,7 @@ import HomePage from "../features/home-page/home";
 import NotFound from "../features/not-found/not-found";
 import UserProfile from "../features/user-profile/profile";
 import ManagePosts from "../features/manage-posts";
+import JobApplied from "../features/job-appied";
 
 const AppRouter = () => {
   const {
@@ -32,6 +33,11 @@ const AppRouter = () => {
             {user.accountType === "company" && (
               <>
                 <Route path='/manage-posts' element={<ManagePosts />} />
+              </>
+            )}
+            {user.accountType === "employee" && (
+              <>
+                <Route path='/applied-posts' element={<JobApplied />} />
               </>
             )}
           </>
