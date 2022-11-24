@@ -12,17 +12,20 @@ import { useCallback, useContext, useEffect, useState } from "react";
 import { authContext, updateAction } from "../../cores/context/auth";
 import bg from "../../assets/default-bg.jpg";
 import { getProfile, updateUserProfile } from "../../services/profile.service";
-import { getOwnPost, uploadImage } from "../../services/hiring-post.service";
+import { getOwnPost, getUserPosts, uploadImage } from "../../services/hiring-post.service";
 import PostItem from "../home-page/post";
 import { FaChevronLeft, FaChevronRight, FaEdit, FaTimes } from "react-icons/fa";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const CompanyProfile = () => {
   const {
     state: { user, token },
     dispatch
   } = useContext(authContext);
+
+  const {id} = useParams();
+
 
   const [profile, setProfile] = useState({});
   const [data, setData] = useState([]);
@@ -35,7 +38,7 @@ const CompanyProfile = () => {
 
   const getCompanyProfile = useCallback(async () => {
     try {
-      const response = await getProfile(user?._id, token);
+      const response = await getProfile(id, token);
       if (response.status === 200) {
         setProfile(response.data);
         setIntroduction(response.data?.account?.introduction);
@@ -43,11 +46,11 @@ const CompanyProfile = () => {
     } catch (error) {
       console.log(error);
     }
-  }, [token, user?._id]);
+  }, [token, id]);
 
   const getData = useCallback(async () => {
     try {
-      const response = await getOwnPost(currentPage, "", token);
+      const response = await getUserPosts(id, currentPage, "", token);
       setData(response.data.data);
       setTotalPages(response.data.totalPages);
     } catch (error) {
@@ -94,7 +97,7 @@ const CompanyProfile = () => {
 
   useEffect(() => {
     getCompanyProfile();
-  }, [getProfile]);
+  }, [getCompanyProfile]);
 
   return (
     <Box border='none'>
@@ -139,7 +142,7 @@ const CompanyProfile = () => {
           <Text fontWeight='bold' fontSize='20'>
             Introduction
           </Text>
-          {user.accountType === "company" && (
+          {user?._id === id && (
             <IconButton color='blue' icon={!isIntroEdit ? <FaEdit /> : <FaTimes />} onClick={() => setIsIntroEdit(prev => !prev)} />
           )}
         </Flex>
@@ -166,7 +169,7 @@ const CompanyProfile = () => {
           <Text fontWeight='bold' fontSize='20'>
             Hiring Posts
           </Text>
-          {user.accountType === "company" && (
+          {user?._id === id && (
             <Button onClick={() => navigate('/manage-posts')} bgColor='blue' colorScheme={"teal"} mb={5}>
               Manage
             </Button>

@@ -23,7 +23,7 @@ import {
   FaTimes,
 } from "react-icons/fa";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import ExperienceModal from "./employee-profile/experience-modal";
 import ExperienceItem from "./employee-profile/experience-item";
 import ProjectItem from "./employee-profile/project-item";
@@ -36,6 +36,7 @@ const EmployeeProfile = () => {
     state: { user, token },
     dispatch,
   } = useContext(authContext);
+  const {id} = useParams();
 
   const [profile, setProfile] = useState({});
   const [introduction, setIntroduction] = useState("");
@@ -43,7 +44,7 @@ const EmployeeProfile = () => {
 
   const getEmployeeProfile = useCallback(async () => {
     try {
-      const response = await getProfile(user?._id, token);
+      const response = await getProfile(id, token);
       if (response.status === 200) {
         setProfile(response.data);
         setIntroduction(response.data?.account?.introduction);
@@ -51,7 +52,7 @@ const EmployeeProfile = () => {
     } catch (error) {
       console.log(error);
     }
-  }, [token, user?._id]);
+  }, [token, id]);
 
   const updateProfile = async (key, value) => {
     try {
@@ -88,7 +89,7 @@ const EmployeeProfile = () => {
 
   useEffect(() => {
     getEmployeeProfile();
-  }, [getProfile]);
+  }, [getEmployeeProfile]);
 
   return (
     <Box border='none'>
@@ -167,9 +168,9 @@ const EmployeeProfile = () => {
         )}
       </Box>
 
-      <Experience experiences={profile?.experiences} user={user} reload={getEmployeeProfile} id={user?._id} />
+      <Experience experiences={profile?.experiences} user={user} reload={getEmployeeProfile} id={id} />
 
-      <Project projects={profile?.projects} user={user} reload={getEmployeeProfile} id={user?._id} />
+      <Project projects={profile?.projects} user={user} reload={getEmployeeProfile} id={id} />
     </Box>
   );
 };

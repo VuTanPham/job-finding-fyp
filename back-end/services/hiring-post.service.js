@@ -32,6 +32,7 @@ const getOwnHiringPosts = async (userId, page = 1, searchParam = "") => {
 
 const getAppliedPosts = async (userId, page = 1) => {
   const employee = await EmployeeProfile.findOne({ account: userId });
+  console.log(employee);
   const ownHiringPosts = await HiringPost.find({
     appliedCandidate: employee._id
   });

@@ -10,6 +10,7 @@ import NotFound from "../features/not-found/not-found";
 import UserProfile from "../features/user-profile/profile";
 import ManagePosts from "../features/manage-posts";
 import JobApplied from "../features/job-appied";
+import PostDetail from "../features/detail";
 
 const AppRouter = () => {
   const {
@@ -29,15 +30,16 @@ const AppRouter = () => {
         {isAuthenticated && (
           <>
             <Route path='' element={<HomePage />} />
-            <Route path='/user-profile/:id' element={<UserProfile />} />
+            <Route path='detail/:id' element={<PostDetail />} />
+            <Route path='user-profile/:id' element={<UserProfile />} />
             {user.accountType === "company" && (
               <>
-                <Route path='/manage-posts' element={<ManagePosts />} />
+                <Route path='manage-posts' element={<ManagePosts />} />
               </>
             )}
             {user.accountType === "employee" && (
               <>
-                <Route path='/applied-posts' element={<JobApplied />} />
+                <Route path='applied-posts' element={<JobApplied />} />
               </>
             )}
           </>

@@ -7,6 +7,7 @@ const {
   applyToHiringPost,
   getAppliedPosts,
   undoApplied,
+  getHiringPostById,
 } = require("../services/hiring-post.service");
 
 const getAllHiringPosts = async (req, res) => {
@@ -24,6 +25,17 @@ const getAllOwnHiringPosts = async (req, res) => {
   const { page, searchParam } = req.query;
   try {
     const results = await getOwnHiringPosts(_id, page, searchParam);
+    res.status(200).json(results);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const getUserPosts = async (req, res) => {
+  const { id } = req.params;
+  const { page, searchParam } = req.query;
+  try {
+    const results = await getOwnHiringPosts(id, page, searchParam);
     res.status(200).json(results);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -52,6 +64,15 @@ const undoAppliedPost = async (req, res) => {
   }
 };
 
+const getOne = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const results = await getHiringPostById(id);
+    res.status(200).json(results);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 const create = async (req, res) => {
   const { _id } = req.user;
@@ -105,5 +126,7 @@ module.exports = {
   getAllOwnHiringPosts,
   applyToPost,
   getPostsApplied,
-  undoAppliedPost
+  undoAppliedPost,
+  getUserPosts,
+  getOne
 };

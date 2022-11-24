@@ -1,5 +1,7 @@
 import {
+  Avatar,
   Badge,
+  Box,
   Button,
   Flex,
   Heading,
@@ -12,25 +14,28 @@ import { useContext } from "react";
 import { toast } from "react-toastify";
 import { authContext } from "../../cores/context/auth";
 import { applyToPost } from "../../services/hiring-post.service";
-import bg from '../../assets/default-bg.jpg';
+import bg from "../../assets/default-bg.jpg";
+import { useNavigate } from "react-router-dom";
 
+export default function PostItem({ item, reload }) {
+  const {
+    state: { user, profile, token },
+  } = useContext(authContext);
 
-export default function PostItem({item, reload}) {
-
-  const {state: {user,profile, token}} = useContext(authContext);
+  const navigate = useNavigate();
 
   const onApply = async (item) => {
     try {
       console.log(token);
       const response = await applyToPost(item._id, token);
-      if(response.status === 201) {
+      if (response.status === 201) {
         toast.success("Applied");
         reload();
       }
     } catch (error) {
       toast.error(error.message);
     }
-  }
+  };
 
   return (
     <Stack
@@ -47,10 +52,10 @@ export default function PostItem({item, reload}) {
         <Image
           objectFit='cover'
           boxSize='100%'
-          height="400px"
-          src={
-            item.bannerUrl || bg
-          }
+          height='400px'
+          src={item.bannerUrl || bg}
+          cursor='pointer'
+          onClick={() => navigate(`detail/${item._id}`)}
         />
       </Flex>
       <Stack
@@ -61,10 +66,22 @@ export default function PostItem({item, reload}) {
         p={1}
         pt={2}
       >
-        <Heading fontSize={"2xl"} fontFamily={"body"}>
+        <Heading
+          cursor='pointer'
+          onClick={() => navigate(`detail/${item._id}`)}
+          fontSize={"2xl"}
+          fontFamily={"body"}
+        >
           {item.title}
         </Heading>
-        <Text fontWeight={600} color={"gray.500"} size='sm' mb={4}>
+        <Text
+          cursor='pointer'
+          onClick={() => navigate(`detail/${item._id}`)}
+          fontWeight={600}
+          color={"gray.500"}
+          size='sm'
+          mb={4}
+        >
           {item.createAt}
         </Text>
         <Text
@@ -72,34 +89,23 @@ export default function PostItem({item, reload}) {
           color={useColorModeValue("gray.700", "gray.400")}
           px={3}
         >
-         {item.description}
+          {item.description}
         </Text>
-        <Stack align={"center"} justify={"center"} direction={"row"} mt={6}>
-          <Badge
-            px={2}
-            py={1}
-            bg={useColorModeValue("gray.50", "gray.800")}
-            fontWeight={"400"}
-          >
-            #IT
-          </Badge>
-          <Badge
-            px={2}
-            py={1}
-            bg={useColorModeValue("gray.50", "gray.800")}
-            fontWeight={"400"}
-          >
-            #marketing
-          </Badge>
-          <Badge
-            px={2}
-            py={1}
-            bg={useColorModeValue("gray.50", "gray.800")}
-            fontWeight={"400"}
-          >
-            #engineer
-          </Badge>
-        </Stack>
+        <Flex
+          cursor='pointer'
+          onClick={(e) => {
+            e.preventDefault();
+            navigate(`/user-profile/${item?.createdBy?.account?._id}`);
+          }}
+          alignSelf='flex-start'
+          gap={3}
+          alignItems='center'
+        >
+          <Avatar src={item?.createdBy?.account?.avatarUrl} />
+          <Text fontWeight='bold' fontSize={20}>
+            {item?.createdBy?.name}
+          </Text>
+        </Flex>
 
         <Stack
           width={"100%"}
@@ -109,25 +115,29 @@ export default function PostItem({item, reload}) {
           justifyContent={"space-between"}
           alignItems={"center"}
         >
-          {(user.accountType === 'employee' && item.appliedCandidate?.filter(item => item === profile._id)?.length === 0) && <Button
-            onClick={() => onApply(item)}
-            flex={1}
-            fontSize={"sm"}
-            rounded={"full"}
-            bg={"blue.400"}
-            color={"white"}
-            boxShadow={
-              "0px 1px 25px -5px rgb(66 153 225 / 48%), 0 10px 10px -5px rgb(66 153 225 / 43%)"
-            }
-            _hover={{
-              bg: "blue.500",
-            }}
-            _focus={{
-              bg: "blue.500",
-            }}
-          >
-            Apply
-          </Button>}
+          {user.accountType === "employee" &&
+            item.appliedCandidate?.filter((item) => item === profile._id)
+              ?.length === 0 && (
+              <Button
+                onClick={() => onApply(item)}
+                flex={1}
+                fontSize={"sm"}
+                rounded={"full"}
+                bg={"blue.400"}
+                color={"white"}
+                boxShadow={
+                  "0px 1px 25px -5px rgb(66 153 225 / 48%), 0 10px 10px -5px rgb(66 153 225 / 43%)"
+                }
+                _hover={{
+                  bg: "blue.500",
+                }}
+                _focus={{
+                  bg: "blue.500",
+                }}
+              >
+                Apply
+              </Button>
+            )}
         </Stack>
       </Stack>
     </Stack>

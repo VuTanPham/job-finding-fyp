@@ -23,8 +23,18 @@ export const getOwnPost = async (page, searchParam, token) => axios.get(
   config(token)
 );
 
+export const getUserPosts = async (id, page, searchParam, token) => axios.get(
+  `${process.env.REACT_APP_API}/hiring-posts/user/${id}?page=${page}&searchParam=${searchParam}`,
+  config(token)
+);
+
 export const getAppliedPost = async (page, token) => axios.get(
   `${process.env.REACT_APP_API}/hiring-posts/job-applied?page=${page}`,
+  config(token)
+);
+
+export const getPostById = async (id, token) => axios.get(
+  `${process.env.REACT_APP_API}/hiring-posts/${id}`,
   config(token)
 );
 

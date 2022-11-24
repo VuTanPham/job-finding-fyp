@@ -11,6 +11,8 @@ const {
   applyToPost,
   getPostsApplied,
   undoAppliedPost,
+  getUserPosts,
+  getOne,
 } = require("../controllers/hiring-post.controller");
 
 hiringPostRoute.use(passport.authenticate("jwt", { session: false }));
@@ -19,6 +21,8 @@ hiringPostRoute.get("/", getAllHiringPosts);
 hiringPostRoute.get("/manage",authorize('company'), getAllOwnHiringPosts);
 hiringPostRoute.get("/job-applied",authorize('employee'), getPostsApplied);
 hiringPostRoute.put("/job-applied/undo",authorize('employee'), undoAppliedPost);
+hiringPostRoute.get("/user/:id", getUserPosts);
+hiringPostRoute.get("/:id", getOne);
 hiringPostRoute.post("/", authorize("company"), create);
 hiringPostRoute.post("/apply", authorize("employee"), applyToPost);
 hiringPostRoute.put("/:id", authorize("company"), update);
