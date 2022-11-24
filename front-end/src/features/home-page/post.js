@@ -12,6 +12,8 @@ import { useContext } from "react";
 import { toast } from "react-toastify";
 import { authContext } from "../../cores/context/auth";
 import { applyToPost } from "../../services/hiring-post.service";
+import bg from '../../assets/default-bg.jpg';
+
 
 export default function PostItem({item, reload}) {
 
@@ -47,7 +49,7 @@ export default function PostItem({item, reload}) {
           boxSize='100%'
           height="400px"
           src={
-            item.bannerUrl
+            item.bannerUrl || bg
           }
         />
       </Flex>
