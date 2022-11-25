@@ -11,6 +11,7 @@ import UserProfile from "../features/user-profile/profile";
 import ManagePosts from "../features/manage-posts";
 import JobApplied from "../features/job-appied";
 import PostDetail from "../features/detail";
+import Connections from "../features/connection";
 
 const AppRouter = () => {
   const {
@@ -30,6 +31,7 @@ const AppRouter = () => {
         {isAuthenticated && (
           <>
             <Route path='' element={<HomePage />} />
+            <Route path='/connections' element={<Connections />} />
             <Route path='detail/:id' element={<PostDetail />} />
             <Route path='user-profile/:id' element={<UserProfile />} />
             {user.accountType === "company" && (
