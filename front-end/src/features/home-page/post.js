@@ -26,7 +26,6 @@ export default function PostItem({ item, reload }) {
 
   const onApply = async (item) => {
     try {
-      console.log(token);
       const response = await applyToPost(item._id, token);
       if (response.status === 201) {
         toast.success("Applied");
@@ -115,9 +114,9 @@ export default function PostItem({ item, reload }) {
           justifyContent={"space-between"}
           alignItems={"center"}
         >
-          {user.accountType === "employee" &&
+          {(user.accountType === "employee" &&
             item.appliedCandidate?.filter((item) => item === profile._id)
-              ?.length === 0 && (
+              ?.length === 0) && (
               <Button
                 onClick={() => onApply(item)}
                 flex={1}
