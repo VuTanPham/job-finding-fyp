@@ -30,7 +30,6 @@ const PostDetail = () => {
       const response = await getPostById(id, token);
       if (response.status === 200) {
         setPost(response.data);
-        console.log(response.data);
       }
     } catch (error) {
       console.log(error);

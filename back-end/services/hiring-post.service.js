@@ -1,4 +1,5 @@
-const { HiringPost, CompanyProfile, EmployeeProfile } = require("../models");
+const { HiringPost, CompanyProfile, EmployeeProfile, Conservation } = require("../models");
+const { createConservation } = require("./chatting.service");
 
 const LIMIT = 5;
 
@@ -32,7 +33,6 @@ const getOwnHiringPosts = async (userId, page = 1, searchParam = "") => {
 
 const getAppliedPosts = async (userId, page = 1) => {
   const employee = await EmployeeProfile.findOne({ account: userId });
-  console.log(employee);
   const ownHiringPosts = await HiringPost.find({
     appliedCandidate: employee._id
   });
@@ -106,6 +106,7 @@ const applyToHiringPost = async (userId, postId) => {
   if (hiringPost.appliedCandidate.includes(candidate._id)) {
     throw new Error("You had applied this job before");
   } else {
+    await createConservation(candidate._id, hiringPost.createdBy);
     hiringPost.appliedCandidate.push(candidate);
     await hiringPost.save();
     return hiringPost;
@@ -118,6 +119,7 @@ const undoApplied = async (userId, postId) => {
   if (!hiringPost.appliedCandidate.includes(candidate._id)) {
     throw new Error("You had not applied this job yet");
   } else {
+    // await Conservation.findOneAndRemove({employee: candidate._id, company: hiringPost.createdBy})
     hiringPost.appliedCandidate = hiringPost.appliedCandidate.filter(item => item.toString() != candidate._id?.toString());
     await hiringPost.save();
     return hiringPost;

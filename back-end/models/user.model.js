@@ -39,7 +39,6 @@ UserSchema.methods.validatePassword = async function (password, next) {
       process.env.ENCRYPT_KEY
     );
     const rawPassword = decrypted.toString(CryptoJS.enc.Utf8);
-    console.log(rawPassword === password)
     if (rawPassword === password) {
       return next(null, this);
     } else {

@@ -9,29 +9,67 @@ import {
   Text,
 } from "@chakra-ui/react";
 import moment from "moment";
-import { useEffect, useRef } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { FaPaperPlane, FaSearch } from "react-icons/fa";
+import { authContext } from "../../cores/context/auth";
+import io from "socket.io-client";
+import { getAllConservations } from "../../services/chat.service";
 
-const UserChatting = () => {
+const socket = io("http://localhost:5000", {
+  autoConnect: false,
+  transports: ["websocket"],
+});
+
+const UserChatting = ({ accountType, item }) => {
   return (
-    <Flex gap={3} px={5} mb={5}>
-      <Avatar size='lg' />
-      <Flex direction='column'>
-        <Text fontWeight='bold' fontSize={18}>
-          Pham Tan Vu
-        </Text>
-        <Text
-          w='210px'
-          overflow='hidden'
-          whiteSpace='nowrap'
-          textOverflow='ellipsis'
-        >
-          We will talk about it later! See you on next time!
-        </Text>
-        <Text color='gray.500'>
-          {moment(new Date()).format("DD/MM/YYYY - HH:MM")}
-        </Text>
-      </Flex>
+    <Flex gap={3} px={5} mb={5} cursor='pointer'>
+      {accountType === "employee" ? (
+        <>
+          <Avatar size='lg' src={item?.company?.account?.avatarUrl} />
+          <Flex direction='column'>
+            <Text fontWeight='bold' fontSize={18}>
+              {item?.company?.name}
+            </Text>
+            <Text
+              w='210px'
+              overflow='hidden'
+              whiteSpace='nowrap'
+              textOverflow='ellipsis'
+            >
+              {item?.messages[item?.messages.length - 1]?.content}
+            </Text>
+            <Text color='gray.500'>
+              {item?.messages[0]?.createAt &&
+                moment(item?.messages[0]?.createAt).format(
+                  "DD/MM/YYYY - HH:MM"
+                )}
+            </Text>
+          </Flex>
+        </>
+      ) : (
+        <>
+          <Avatar size='lg' src={item?.employee?.account?.avatarUrl} />
+          <Flex direction='column'>
+            <Text fontWeight='bold' fontSize={18}>
+              {item?.employee?.name}
+            </Text>
+            <Text
+              w='210px'
+              overflow='hidden'
+              whiteSpace='nowrap'
+              textOverflow='ellipsis'
+            >
+              {item?.messages[item?.messages.length - 1]?.content}
+            </Text>
+            <Text color='gray.500'>
+              {item?.messages[0]?.createAt &&
+                moment(item?.messages[0]?.createAt).format(
+                  "DD/MM/YYYY - HH:MM"
+                )}{" "}
+            </Text>
+          </Flex>
+        </>
+      )}
     </Flex>
   );
 };
@@ -94,6 +132,39 @@ const ChatMessage = () => {
 const Connections = () => {
   const chatView = useRef(null);
 
+  const {
+    state: { user, token },
+  } = useContext(authContext);
+  const [conservations, setConservations] = useState([]);
+  const [selectedChat, setSelectedChat] = useState({});
+  const [content, setContent] = useState("");
+
+  const getConservations = useCallback(async () => {
+    try {
+      const response = await getAllConservations(token);
+      if (response.status === 200) {
+        setConservations(response.data);
+        console.log(response.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }, [token]);
+
+  useEffect(() => {
+    getConservations();
+  }, [getConservations]);
+
+  useEffect(() => {
+    socket.connect();
+    socket.emit("setId", user?._id);
+
+    return () => {
+      socket.emit("clear", user?._id);
+      socket.disconnect();
+    };
+  }, []);
+
   useEffect(() => {
     chatView.current.scrollIntoView({
       behavior: "smooth",
@@ -101,6 +172,10 @@ const Connections = () => {
       inline: "nearest",
     });
   }, []);
+
+  const send = () => {
+    
+  }
 
   return (
     <Box>
@@ -120,34 +195,25 @@ const Connections = () => {
             <Input type='text' placeholder='Search Connection' />
           </InputGroup>
           <Box mt={20}>
-            <UserChatting />
-            <UserChatting />
-            <UserChatting />
-            <UserChatting />
-            <UserChatting />
-            <UserChatting />
-            <UserChatting />
-            <UserChatting />
-            <UserChatting />
-            <UserChatting />
+            {conservations.map((item) => (
+              <UserChatting item={item} accountType={user.accountType} />
+            ))}
           </Box>
         </Box>
         <Box width='100%'>
-          <Box height='95%' overflowY='scroll' px={5}>
-            <ChatMessage />
-            <ChatMessage />
-            <ChatMessage />
-            <ChatMessage />
+          <Flex
+            height='95%'
+            overflowY='scroll'
+            px={5}
+            direction='column'
+            justifyContent='flex-end'
+          >
             <ChatMessage />
             <Box ref={chatView}></Box>
-          </Box>
+          </Flex>
           <Box>
             <InputGroup px={2} borderColor='black'>
-              <InputLeftElement
-                pointerEvents='none'
-                children={<FaSearch color='gray.300' />}
-              />
-              <Input type='text' placeholder='Message' />
+              <Input type='text' value={content} onChange={e => setContent(e.target.value)} placeholder='Message' />
               <InputRightElement
                 px={3}
                 cursor='pointer'

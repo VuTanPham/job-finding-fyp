@@ -2,7 +2,6 @@ const {addNewProject, updateProject, removeProject} = require('../services/emplo
 
 const addOne = async (req, res) => {
     try {
-        console.log(req.user._id);
         await addNewProject(req.user._id, req.body);
         res.status(201).json({message: 'Added'});
     } catch (error) {

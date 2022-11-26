@@ -1,19 +1,23 @@
-const express = require('express');
-const cors = require('cors');
-const errorhandler = require('errorhandler');
-const morgan = require('morgan');
-const passport = require('passport');
+const express = require("express");
+const cors = require("cors");
+const errorhandler = require("errorhandler");
+const morgan = require("morgan");
+const passport = require("passport");
 const expressSession = require("express-session");
-const mongoose = require('mongoose');
-
-const seed = require('./services/seed.service')
-
-const appRouter = require('./routes');
-
-(require('dotenv')).config();
-const passportConfig = require('./middleware/authentication.middleware');
-
+const mongoose = require("mongoose");
 const app = express();
+const http = require('http');
+const server = http.createServer(app);
+const { Server } = require("socket.io");
+const seed = require("./services/seed.service");
+
+const appRouter = require("./routes");
+
+require("dotenv").config();
+const passportConfig = require("./middleware/authentication.middleware");
+const {User} = require('./models/index');
+const { sendNewMessage } = require("./services/chatting.service");
+
 const PORT = process.env.PORT | 5000;
 
 const connect = async (dbConnectionUrl) => {
@@ -30,6 +34,8 @@ const connect = async (dbConnectionUrl) => {
 };
 
 connect("mongodb://localhost:27017/job-find-fyp");
+
+
 app.use(
   expressSession({
     secret: process.env.SECRET_KEY,
@@ -41,12 +47,34 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(cors());
 app.use(errorhandler());
-app.use(express.json({urlencoded: true}));
-app.use(morgan('dev'));
+app.use(express.json({ urlencoded: true }));
+app.use(morgan("dev"));
 
-app.use('/api', appRouter);
+app.use("/api", appRouter);
 
-app.listen(PORT, () => {
-    console.log(`Server up, PORT: ${PORT}`)
-})
+const io = new Server(server, {
+  cors: '*'
+});
+io.on("connection", (socket) => {
+  console.log("userId connected", socket.id);
+  socket.on("setId", async (userId) => {
+    await User.findByIdAndUpdate(userId, { socketId: socket.id });
+  });
 
+  socket.on('clear', async (userId) => {
+    await User.findByIdAndUpdate(userId, { socketId: null });
+  })
+
+  socket.on('send', async ({conId, sendBy, content, senderId}) => {
+    const {receiverId, newMessage} = await sendNewMessage(conId, sendBy, content, senderId);
+    socket.emit('receive', newMessage);
+  })
+
+  socket.on('disconnect', async () => {
+    console.log('user disconnect')
+  })
+});
+
+server.listen(PORT, () => {
+  console.log(`Server up, PORT: ${PORT}`);
+});

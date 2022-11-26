@@ -2,7 +2,8 @@ const mongoose = require('mongoose');
 
 
 const ConservationSchema = new mongoose.Schema({
-    members: [{type: mongoose.Schema.Types.ObjectId, ref: 'users'}],
+    employee: {type: mongoose.Schema.Types.ObjectId, ref: 'employee-profiles'},
+    company: {type: mongoose.Schema.Types.ObjectId, ref: 'company-profiles'},
     messages: [{type: mongoose.Schema.Types.ObjectId, ref : 'messages'}],
     readBy: [{type: mongoose.Schema.Types.ObjectId, ref : 'users'}]
 })
