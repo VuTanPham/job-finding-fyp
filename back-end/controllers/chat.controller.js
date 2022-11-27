@@ -21,7 +21,14 @@ const getOne = async (req, res) => {
 }
 
 const sendMessage = async (req, res) => {
-    
+    const {accountType, _id} = req.user;
+    const {conservationId, content, profileId} = req.body;
+    try {
+        const {newMessage} = await sendNewMessage(conservationId, accountType, content, profileId);
+        res.status(201).json(newMessage);
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 
@@ -36,4 +43,4 @@ const deleteOne = async (req, res) => {
 
 
 
-module.exports = {getAll, getOne, deleteOne}
+module.exports = {getAll, getOne, deleteOne, sendMessage}

@@ -31,11 +31,20 @@ const getAllConservation = async (memId, accountType) => {
 const getConservation = async (conservationId) => {
   return await Conservation.findById(conservationId, null, {
     populate: [
-      { path: "messages" },
+      {
+        path: "messages",
+        populate: [
+          { path: "company", populate: { path: "account" } },
+          { path: "employee", populate: { path: "account" } },
+        ],
+      },
       { path: "readBy" },
       { path: "company", populate: { path: "account" } },
       { path: "employee", populate: { path: "account" } },
     ],
+    sort: {
+      updatedAt: -1,
+    },
   });
 };
 
@@ -66,22 +75,36 @@ const sendNewMessage = async (conservationId, sendBy, content, senderId) => {
       ? { sendBy, content, company: senderId }
       : { sendBy, content, employee: senderId }
   );
-  conservation.messages.push(sendBy);
+  conservation.messages.push(newMessage);
   await newMessage.save();
   await conservation.save();
 
   let receiverId;
+  let senderSocketId;
+  const employee = await EmployeeProfile.findById(
+    conservation?.employee
+  ).populate("account");
+  const company = await CompanyProfile.findById(
+    conservation?.company
+  ).populate("account");
 
-  if(newMessage.sendBy === "company") {
-    const employee = await EmployeeProfile.findById(senderId).populate('account');
+  if (newMessage.sendBy === "company") {
     receiverId = employee.account?.socketId;
-  }
-  else {
-    const company = await CompanyProfile.findById(senderId).populate('account');
-    receiverId = company.account?.socketId
+    senderSocketId = company.account?.socketId;
+  } else {
+    receiverId = company.account?.socketId;
+    senderSocketId = employee.account?.socketId;
+
   }
 
-  return {receiverId, newMessage};
+  return {
+    receiverId,
+    message: await Message.findById(newMessage?._id, null, {
+      populate: [{ path: "company" }, { path: "employee" }],
+    }),
+    conservationId,
+    senderSocketId
+  };
 };
 
 const deleteConservation = async (conservationId) => {

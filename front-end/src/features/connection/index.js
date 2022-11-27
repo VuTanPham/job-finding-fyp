@@ -10,19 +10,19 @@ import {
 } from "@chakra-ui/react";
 import moment from "moment";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { FaPaperPlane, FaSearch } from "react-icons/fa";
+import { FaPaperPlane } from "react-icons/fa";
 import { authContext } from "../../cores/context/auth";
 import io from "socket.io-client";
-import { getAllConservations } from "../../services/chat.service";
+import { getAllConservations, getConservation, sendMessage } from "../../services/chat.service";
 
 const socket = io("http://localhost:5000", {
   autoConnect: false,
   transports: ["websocket"],
 });
 
-const UserChatting = ({ accountType, item }) => {
+const UserChatting = ({ accountType, item, selected , selectedChat}) => {
   return (
-    <Flex gap={3} px={5} mb={5} cursor='pointer'>
+    <Flex gap={3} px={5} mb={5} py={3} cursor='pointer' onClick={() => selected(item?._id)} bgColor={selectedChat?._id === item?._id ? 'gray.200' : 'transparent'}>
       {accountType === "employee" ? (
         <>
           <Avatar size='lg' src={item?.company?.account?.avatarUrl} />
@@ -74,57 +74,60 @@ const UserChatting = ({ accountType, item }) => {
   );
 };
 
-const ChatMessage = () => {
+const ChatMessage = ({ message, profile }) => {
   return (
     <>
-      <Flex py={3} mb={3} gap={3}>
-        <Avatar size='md' />
-        <Flex direction='column'>
-          <Flex gap={2}>
-            <Text fontWeight='bold' fontSize={18}>
-              Pham Tan Vu
-            </Text>
-            <Text color='gray.500'>
-              - {moment(new Date()).format("DD/MM/YYYY - HH:MM")}
-            </Text>
+      {message?.sendBy === "company" ? (
+        <>
+          <Flex py={3} mb={3} gap={3} direction={message?.company?._id === profile?._id ? 'row-reverse' : 'row'}>
+            <Avatar size='md' />
+            <Flex direction='column'>
+              <Flex gap={2} direction={message?.company?._id === profile?._id ? 'row-reverse' : 'row'}>
+                <Text fontWeight='bold' fontSize={18}>
+                  {message?.company?.name}
+                </Text>
+                <Text color='gray.500'>
+                  - {moment(new Date(message?.createdAt)).format("DD/MM/YYYY - HH:MM")}
+                </Text>
+              </Flex>
+              <Text
+                width='500px'
+                bgColor='white'
+                px={3}
+                py={2}
+                borderRadius={10}
+              >
+                {message?.content}
+              </Text>
+            </Flex>
           </Flex>
-          <Text width='500px' bgColor='white' px={3} py={2} borderRadius={10}>
-            Lorem Ipsum is simply dummy text of the printing and typesetting
-            industry. Lorem Ipsum has been the industry's standard dummy text
-            ever since the 1500s, when an unknown printer took a galley of type
-            and scrambled it to make a type specimen book. It has survived not
-            only five centuries, but also the leap into electronic typesetting,
-            remaining essentially unchanged. It was popularised in the 1960s
-            with the release of Letraset sheets containing Lorem Ipsum passages,
-            and more recently with desktop publishing software like Aldus
-            PageMaker including versions of Lorem Ipsum.
-          </Text>
-        </Flex>
-      </Flex>
-      <Flex py={3} mb={3} gap={3} direction='row-reverse'>
-        <Avatar size='md' />
-        <Flex direction='column'>
-          <Flex gap={2} direction='row-reverse'>
-            <Text fontWeight='bold' fontSize={18}>
-              Pham Tan Vu
-            </Text>
-            <Text color='gray.500'>
-              {moment(new Date()).format("DD/MM/YYYY - HH:MM")} -
-            </Text>
+        </>
+      ) : (
+        <>
+          <Flex py={3} mb={3} gap={3} direction={message?.employee?._id === profile?._id ? 'row-reverse' : 'row'}>
+            <Avatar size='md' />
+            <Flex direction='column'>
+              <Flex gap={2} direction={message?.employee?._id === profile?._id ? 'row-reverse' : 'row'}>
+                <Text fontWeight='bold' fontSize={18}>
+                  {message?.employee?.name}
+                </Text>
+                <Text color='gray.500'>
+                  - {moment(new Date(message?.createdAt)).format("DD/MM/YYYY - HH:MM")}
+                </Text>
+              </Flex>
+              <Text
+                width='500px'
+                bgColor='white'
+                px={3}
+                py={2}
+                borderRadius={10}
+              >
+                {message?.content}
+              </Text>
+            </Flex>
           </Flex>
-          <Text width='500px' bgColor='white' px={3} py={2} borderRadius={10}>
-            Lorem Ipsum is simply dummy text of the printing and typesetting
-            industry. Lorem Ipsum has been the industry's standard dummy text
-            ever since the 1500s, when an unknown printer took a galley of type
-            and scrambled it to make a type specimen book. It has survived not
-            only five centuries, but also the leap into electronic typesetting,
-            remaining essentially unchanged. It was popularised in the 1960s
-            with the release of Letraset sheets containing Lorem Ipsum passages,
-            and more recently with desktop publishing software like Aldus
-            PageMaker including versions of Lorem Ipsum.
-          </Text>
-        </Flex>
-      </Flex>
+        </>
+      )}
     </>
   );
 };
@@ -133,10 +136,10 @@ const Connections = () => {
   const chatView = useRef(null);
 
   const {
-    state: { user, token },
+    state: { user, token, profile },
   } = useContext(authContext);
   const [conservations, setConservations] = useState([]);
-  const [selectedChat, setSelectedChat] = useState({});
+  const [selectedChat, setSelectedChat] = useState(null);
   const [content, setContent] = useState("");
 
   const getConservations = useCallback(async () => {
@@ -144,20 +147,32 @@ const Connections = () => {
       const response = await getAllConservations(token);
       if (response.status === 200) {
         setConservations(response.data);
-        console.log(response.data);
       }
     } catch (error) {
       console.log(error);
     }
   }, [token]);
 
+  const getSelectedChat = async (id) => {
+    try {
+      const response = await getConservation(id, token);
+      if(response.status === 200) {
+        setSelectedChat(response.data);
+      }
+    } catch (error) {
+      
+    }
+  }
+
   useEffect(() => {
     getConservations();
   }, [getConservations]);
 
   useEffect(() => {
-    socket.connect();
-    socket.emit("setId", user?._id);
+    socket.connect().emit("setId", user?._id);
+    //socket.emit("setId", user?._id);
+
+
 
     return () => {
       socket.emit("clear", user?._id);
@@ -165,17 +180,26 @@ const Connections = () => {
     };
   }, []);
 
+  socket.on('receive', ({message, conservationId}) => {
+      const conservationTop = conservations?.filter(item => item?._id === conservationId)[0];
+      const leftConservation = conservations?.filter(item => item?._id !== conservationId);
+      conservationTop?.messages.push(message);
+      setConservations([conservationTop, ...leftConservation]);
+      setSelectedChat(prev => ({...prev, messages: [...prev.messages, message]}));
+  })
+
   useEffect(() => {
-    chatView.current.scrollIntoView({
+    selectedChat && chatView.current.scrollIntoView({
       behavior: "smooth",
       block: "start",
       inline: "nearest",
     });
-  }, []);
+  }, [selectedChat]);
 
-  const send = () => {
-    
-  }
+  const send = async () => {
+    socket.emit('send', {conId: selectedChat?._id, sendBy: user?.accountType, content, senderId: profile?._id});
+    setContent("");
+  };
 
   return (
     <Box>
@@ -187,40 +211,41 @@ const Connections = () => {
           overflowY='auto'
           py={30}
         >
-          <InputGroup px={2}>
-            <InputLeftElement
-              pointerEvents='none'
-              children={<FaSearch color='gray.300' />}
-            />
-            <Input type='text' placeholder='Search Connection' />
-          </InputGroup>
-          <Box mt={20}>
+          <Box mt={5}>
             {conservations.map((item) => (
-              <UserChatting item={item} accountType={user.accountType} />
+              <UserChatting key={item?._id} item={item} selectedChat={selectedChat} accountType={user.accountType} selected={getSelectedChat} />
             ))}
           </Box>
         </Box>
         <Box width='100%'>
-          <Flex
+          {selectedChat ? <>
+            <Flex
             height='95%'
             overflowY='scroll'
             px={5}
             direction='column'
             justifyContent='flex-end'
           >
-            <ChatMessage />
+            {selectedChat?.messages?.map(item => <ChatMessage key={item?._id} message={item} profile={profile} />)}
             <Box ref={chatView}></Box>
           </Flex>
           <Box>
             <InputGroup px={2} borderColor='black'>
-              <Input type='text' value={content} onChange={e => setContent(e.target.value)} placeholder='Message' />
+              <Input
+                type='text'
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder='Message'
+              />
               <InputRightElement
                 px={3}
                 cursor='pointer'
+                onClick={send}
                 children={<FaPaperPlane />}
               />
             </InputGroup>
           </Box>
+          </> : <></>}
         </Box>
       </Flex>
     </Box>

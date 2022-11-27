@@ -55,6 +55,7 @@ app.use("/api", appRouter);
 const io = new Server(server, {
   cors: '*'
 });
+
 io.on("connection", (socket) => {
   console.log("userId connected", socket.id);
   socket.on("setId", async (userId) => {
@@ -66,8 +67,13 @@ io.on("connection", (socket) => {
   })
 
   socket.on('send', async ({conId, sendBy, content, senderId}) => {
-    const {receiverId, newMessage} = await sendNewMessage(conId, sendBy, content, senderId);
-    socket.emit('receive', newMessage);
+    try {
+      const {receiverId, message, conservationId, senderSocketId} = await sendNewMessage(conId, sendBy, content, senderId);
+      socket.to(senderSocketId).emit('receive', {message, conservationId});
+      socket.to(receiverId).emit('receive', {message, conservationId});
+    } catch (error) {
+      console.log(error);
+    }
   })
 
   socket.on('disconnect', async () => {

@@ -6,7 +6,7 @@ const ConservationSchema = new mongoose.Schema({
     company: {type: mongoose.Schema.Types.ObjectId, ref: 'company-profiles'},
     messages: [{type: mongoose.Schema.Types.ObjectId, ref : 'messages'}],
     readBy: [{type: mongoose.Schema.Types.ObjectId, ref : 'users'}]
-})
+}, {timestamps: true})
 
 const Conservation = mongoose.model('conservations', ConservationSchema);
 
