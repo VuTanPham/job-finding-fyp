@@ -68,9 +68,10 @@ io.on("connection", (socket) => {
 
   socket.on('send', async ({conId, sendBy, content, senderId}) => {
     try {
-      const {receiverId, message, conservationId, senderSocketId} = await sendNewMessage(conId, sendBy, content, senderId);
-      socket.to(senderSocketId).emit('receive', {message, conservationId});
+      const {receiverId, message, conservationId} = await sendNewMessage(conId, sendBy, content, senderId);
+      console.log(receiverId);
       socket.to(receiverId).emit('receive', {message, conservationId});
+      // socket.to(receiverId).emit('receive', {message, conservationId});
     } catch (error) {
       console.log(error);
     }

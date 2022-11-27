@@ -13,16 +13,28 @@ import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { FaPaperPlane } from "react-icons/fa";
 import { authContext } from "../../cores/context/auth";
 import io from "socket.io-client";
-import { getAllConservations, getConservation, sendMessage } from "../../services/chat.service";
+import {
+  getAllConservations,
+  getConservation,
+  sendMessage,
+} from "../../services/chat.service";
 
 const socket = io("http://localhost:5000", {
   autoConnect: false,
   transports: ["websocket"],
 });
 
-const UserChatting = ({ accountType, item, selected , selectedChat}) => {
+const UserChatting = ({ accountType, item, selected, selectedChat }) => {
   return (
-    <Flex gap={3} px={5} mb={5} py={3} cursor='pointer' onClick={() => selected(item?._id)} bgColor={selectedChat?._id === item?._id ? 'gray.200' : 'transparent'}>
+    <Flex
+      gap={3}
+      px={5}
+      mb={5}
+      py={3}
+      cursor='pointer'
+      onClick={() => selected(item?._id)}
+      bgColor={selectedChat?._id === item?._id ? "gray.200" : "transparent"}
+    >
       {accountType === "employee" ? (
         <>
           <Avatar size='lg' src={item?.company?.account?.avatarUrl} />
@@ -79,15 +91,30 @@ const ChatMessage = ({ message, profile }) => {
     <>
       {message?.sendBy === "company" ? (
         <>
-          <Flex py={3} mb={3} gap={3} direction={message?.company?._id === profile?._id ? 'row-reverse' : 'row'}>
-            <Avatar size='md' />
+          <Flex
+            py={3}
+            mb={3}
+            gap={3}
+            direction={
+              message?.company?._id === profile?._id ? "row-reverse" : "row"
+            }
+          >
+            <Avatar size='md' src={message?.company?.account?.avatarUrl} />
             <Flex direction='column'>
-              <Flex gap={2} direction={message?.company?._id === profile?._id ? 'row-reverse' : 'row'}>
+              <Flex
+                gap={2}
+                direction={
+                  message?.company?._id === profile?._id ? "row-reverse" : "row"
+                }
+              >
                 <Text fontWeight='bold' fontSize={18}>
                   {message?.company?.name}
                 </Text>
                 <Text color='gray.500'>
-                  - {moment(new Date(message?.createdAt)).format("DD/MM/YYYY - HH:MM")}
+                  -{" "}
+                  {moment(new Date(message?.createdAt)).format(
+                    "DD/MM/YYYY - HH:MM"
+                  )}
                 </Text>
               </Flex>
               <Text
@@ -104,15 +131,32 @@ const ChatMessage = ({ message, profile }) => {
         </>
       ) : (
         <>
-          <Flex py={3} mb={3} gap={3} direction={message?.employee?._id === profile?._id ? 'row-reverse' : 'row'}>
-            <Avatar size='md' />
+          <Flex
+            py={3}
+            mb={3}
+            gap={3}
+            direction={
+              message?.employee?._id === profile?._id ? "row-reverse" : "row"
+            }
+          >
+            <Avatar size='md' src={message?.employee?.account?.avatarUrl} />
             <Flex direction='column'>
-              <Flex gap={2} direction={message?.employee?._id === profile?._id ? 'row-reverse' : 'row'}>
+              <Flex
+                gap={2}
+                direction={
+                  message?.employee?._id === profile?._id
+                    ? "row-reverse"
+                    : "row"
+                }
+              >
                 <Text fontWeight='bold' fontSize={18}>
                   {message?.employee?.name}
                 </Text>
                 <Text color='gray.500'>
-                  - {moment(new Date(message?.createdAt)).format("DD/MM/YYYY - HH:MM")}
+                  -{" "}
+                  {moment(new Date(message?.createdAt)).format(
+                    "DD/MM/YYYY - HH:MM"
+                  )}
                 </Text>
               </Flex>
               <Text
@@ -141,6 +185,7 @@ const Connections = () => {
   const [conservations, setConservations] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
   const [content, setContent] = useState("");
+  const [currentChatId, setCurrentChatId] = useState("");
 
   const getConservations = useCallback(async () => {
     try {
@@ -156,13 +201,13 @@ const Connections = () => {
   const getSelectedChat = async (id) => {
     try {
       const response = await getConservation(id, token);
-      if(response.status === 200) {
+      if (response.status === 200) {
         setSelectedChat(response.data);
+        setCurrentChatId(id);
       }
-    } catch (error) {
-      
-    }
-  }
+    } catch (error) {}
+  };
+
 
   useEffect(() => {
     getConservations();
@@ -171,33 +216,52 @@ const Connections = () => {
   useEffect(() => {
     socket.connect().emit("setId", user?._id);
     //socket.emit("setId", user?._id);
-
-
+    socket.on("receive", ({ message, conservationId }) => {
+      const conservationTop = conservations?.filter(
+        (item) => item?._id === conservationId
+      )[0];
+      const leftConservation = conservations?.filter(
+        (item) => item?._id !== conservationId
+      );
+      console.log(
+        conservationId.messages?.find((item) => item._id === message?._id)
+      );
+      if (!conservationId.messages?.find((item) => item._id === message?._id)) {
+        conservationTop?.messages.push(message);
+        setConservations([conservationTop, ...leftConservation]);
+        console.log(selectedChat);
+        selectedChat &&
+          setSelectedChat((prev) => ({
+            ...prev,
+            messages: [...prev.messages, message],
+          }));
+      }
+    });
 
     return () => {
       socket.emit("clear", user?._id);
+      socket.off('receive')
       socket.disconnect();
     };
-  }, []);
-
-  socket.on('receive', ({message, conservationId}) => {
-      const conservationTop = conservations?.filter(item => item?._id === conservationId)[0];
-      const leftConservation = conservations?.filter(item => item?._id !== conservationId);
-      conservationTop?.messages.push(message);
-      setConservations([conservationTop, ...leftConservation]);
-      setSelectedChat(prev => ({...prev, messages: [...prev.messages, message]}));
-  })
+  }, [conservations, selectedChat]);
 
   useEffect(() => {
-    selectedChat && chatView.current.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-      inline: "nearest",
-    });
+    selectedChat &&
+      chatView.current.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+        inline: "nearest",
+      });
   }, [selectedChat]);
 
   const send = async () => {
-    socket.emit('send', {conId: selectedChat?._id, sendBy: user?.accountType, content, senderId: profile?._id});
+    socket.emit("send", {
+      conId: selectedChat?._id,
+      sendBy: user?.accountType,
+      content,
+      senderId: profile?._id,
+    });
+    await getSelectedChat(currentChatId);
     setContent("");
   };
 
@@ -213,39 +277,55 @@ const Connections = () => {
         >
           <Box mt={5}>
             {conservations.map((item) => (
-              <UserChatting key={item?._id} item={item} selectedChat={selectedChat} accountType={user.accountType} selected={getSelectedChat} />
+              <UserChatting
+                key={item?._id}
+                item={item}
+                selectedChat={selectedChat}
+                accountType={user.accountType}
+                selected={getSelectedChat}
+              />
             ))}
           </Box>
         </Box>
         <Box width='100%'>
-          {selectedChat ? <>
-            <Flex
-            height='95%'
-            overflowY='scroll'
-            px={5}
-            direction='column'
-            justifyContent='flex-end'
-          >
-            {selectedChat?.messages?.map(item => <ChatMessage key={item?._id} message={item} profile={profile} />)}
-            <Box ref={chatView}></Box>
-          </Flex>
-          <Box>
-            <InputGroup px={2} borderColor='black'>
-              <Input
-                type='text'
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder='Message'
-              />
-              <InputRightElement
-                px={3}
-                cursor='pointer'
-                onClick={send}
-                children={<FaPaperPlane />}
-              />
-            </InputGroup>
-          </Box>
-          </> : <></>}
+          {selectedChat ? (
+            <>
+              <Flex
+                height='95%'
+                overflowY='scroll'
+                px={5}
+                direction='column'
+                justifyContent='flex-end'
+              >
+                {selectedChat?.messages?.map((item) => (
+                  <ChatMessage
+                    key={item?._id}
+                    message={item}
+                    profile={profile}
+                  />
+                ))}
+                <Box ref={chatView}></Box>
+              </Flex>
+              <Box>
+                <InputGroup px={2} borderColor='black'>
+                  <Input
+                    type='text'
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    placeholder='Message'
+                  />
+                  <InputRightElement
+                    px={3}
+                    cursor='pointer'
+                    onClick={send}
+                    children={<FaPaperPlane />}
+                  />
+                </InputGroup>
+              </Box>
+            </>
+          ) : (
+            <></>
+          )}
         </Box>
       </Flex>
     </Box>

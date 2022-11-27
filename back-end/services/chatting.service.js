@@ -94,7 +94,6 @@ const sendNewMessage = async (conservationId, sendBy, content, senderId) => {
   } else {
     receiverId = company.account?.socketId;
     senderSocketId = employee.account?.socketId;
-
   }
 
   return {
