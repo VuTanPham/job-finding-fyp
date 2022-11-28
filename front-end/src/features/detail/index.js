@@ -69,9 +69,9 @@ const PostDetail = () => {
           {post?.createdBy?.name}
         </Text>
       </Flex>
-      <Text mb={3}>
-        {moment(post?.createdAt).format("DD/MM/YYYY")} - Present (
-        {moment(post?.createdAt).fromNow().split(" ").slice(0, 2).join(" ")})
+      <Text mb={3} textTransform="capitalize">
+        {moment(post?.createdAt).format("DD/MM/YYYY")} (
+        {moment(post?.createdAt).fromNow()})
       </Text>
       <Image src={post?.bannerUrl || bg} width='100%' height='400' />
       <Box textAlign='center' mt={50}>

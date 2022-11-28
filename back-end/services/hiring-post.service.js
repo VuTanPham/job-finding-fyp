@@ -23,7 +23,7 @@ const getOwnHiringPosts = async (userId, page = 1, searchParam = "") => {
         $and: [{ createdBy: company._id }],
       },
       null,
-      { populate: { path: "createdBy", populate: { path: "account" } } }
+      { populate: [{ path: "createdBy", populate: { path: "account" } }, { path: "appliedCandidate", populate: { path: "account" } }] }
     )
       .skip((page - 1) * LIMIT)
       .limit(LIMIT),

@@ -9,7 +9,7 @@ import HomePage from "../features/home-page/home";
 import NotFound from "../features/not-found/not-found";
 import UserProfile from "../features/user-profile/profile";
 import ManagePosts from "../features/manage-posts";
-import JobApplied from "../features/job-appied";
+import JobApplied from "../features/job-applied";
 import PostDetail from "../features/detail";
 import Connections from "../features/connection";
 

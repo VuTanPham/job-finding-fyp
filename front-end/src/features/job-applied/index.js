@@ -22,22 +22,21 @@ import {
   import {
     FaChevronLeft,
     FaChevronRight,
-    FaEdit,
     FaExternalLinkAlt,
-    FaPlus,
-    FaSearch,
-    FaTrash,
     FaUndo,
   } from "react-icons/fa";
   import { toast } from "react-toastify";
   import { authContext } from "../../cores/context/auth";
   import { getAppliedPost, undoApplied } from "../../services/hiring-post.service";
+  import {useNavigate} from 'react-router-dom'
   
   const JobApplied = () => {
   
     const [data, setData] = useState([]);
     const [totalPages, setTotalPages] = useState(1);
     const [currentPage, setCurrentPage] = useState(1);
+    
+    const navigate = useNavigate();
   
     const {
       state: { user, token },
@@ -100,6 +99,7 @@ import {
                         bgColor={"blue"}
                         color='white'
                         colorScheme={"teal"}
+                        onClick={() => navigate(`/detail/${item?._id}`)}
                         icon={<FaExternalLinkAlt />}
                       />
                       <IconButton
