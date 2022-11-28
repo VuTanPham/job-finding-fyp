@@ -1,8 +1,22 @@
 const nodemailer = require("nodemailer");
 const { EmployeeProfile, CompanyProfile } = require("../models");
 const { emailTem } = require("../assets/email");
+const { OAuth2Client } =  require('google-auth-library');
+
+
 
 const sendMail = async (employeeId, companyId, companyAddress) => {
+  const myOAuth2Client = new OAuth2Client(
+    process.env.GOOGLE_MAILER_CLIENT_ID,
+    process.env.GOOGLE_MAILER_CLIENT_SECRET
+  )
+  
+  myOAuth2Client.setCredentials({
+    refresh_token: process.env.GOOGLE_MAILER_REFRESH_TOKEN
+  })
+
+  const myAccessTokenObject = await myOAuth2Client.getAccessToken();
+  const token = myAccessTokenObject?.token;
   try {
     const employee = await EmployeeProfile.findById(employeeId).populate(
       "account"
@@ -11,21 +25,23 @@ const sendMail = async (employeeId, companyId, companyAddress) => {
       "account"
     );
 
-    const account = await nodemailer.createTestAccount();
-
     let transporter = nodemailer.createTransport({
-      host: "smtp.ethereal.email",
-      port: 587,
-      secure: false,
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
       auth: {
-        user: account.user,
-        pass: account.pass,
-      },
+        type: 'OAuth2',
+        user: "ptv.dejavu@gmail.com",
+        clientId: process.env.GOOGLE_MAILER_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_MAILER_CLIENT_SECRET,
+        refresh_token: process.env.GOOGLE_MAILER_REFRESH_TOKEN,
+        accessToken: token
+      }
     });
 
     await transporter.sendMail({
-      from: account.user,
-      to: employee.account.email,
+      from: "ptv.dejavu@gmail.com",
+      to: employee?.account?.email,
       subject: "Congratulation from PTV Platform",
       html: emailTem(employee.name, company.name, companyAddress),
     });

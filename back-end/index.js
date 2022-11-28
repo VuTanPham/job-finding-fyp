@@ -17,6 +17,7 @@ require("dotenv").config();
 const passportConfig = require("./middleware/authentication.middleware");
 const {User} = require('./models/index');
 const { sendNewMessage } = require("./services/chatting.service");
+const { fakeEmail } = require("./services/mail.sevice");
 
 const PORT = process.env.PORT | 5000;
 
@@ -81,6 +82,7 @@ io.on("connection", (socket) => {
     console.log('user disconnect')
   })
 });
+
 
 server.listen(PORT, () => {
   console.log(`Server up, PORT: ${PORT}`);

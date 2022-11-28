@@ -1,4 +1,4 @@
-const {updateUserProfile, getAllUsers, getUserDetail} = require('../services/user.service');
+const {updateUserProfile, getAllUsers, getUserDetail, changeUserBanStatus} = require('../services/user.service');
 
 const getAll = async (req, res) => {
     try {
@@ -27,5 +27,14 @@ const updateOne = async (req, res) => {
     }
 }
 
-module.exports = {getOne, updateOne, getAll}
+const updateUserBanStatus = async (req, res) => {
+    try {
+        await changeUserBanStatus(req.params.userId, req.body.status);
+        res.status(204).json({message: 'Account Updated'})
+    } catch (error) {
+        res.status(500).json({message: error.message})
+    }
+}
+
+module.exports = {getOne, updateOne, getAll, updateUserBanStatus}
 

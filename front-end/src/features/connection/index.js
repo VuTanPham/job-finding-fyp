@@ -1,12 +1,14 @@
 import {
   Avatar,
   Box,
+  Button,
   Flex,
   Input,
   InputGroup,
   InputLeftElement,
   InputRightElement,
   Text,
+  useDisclosure,
 } from "@chakra-ui/react";
 import moment from "moment";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
@@ -16,8 +18,8 @@ import io from "socket.io-client";
 import {
   getAllConservations,
   getConservation,
-  sendMessage,
 } from "../../services/chat.service";
+import OfferDialog from "./offer-dialog";
 
 const socket = io("http://localhost:5000", {
   autoConnect: false,
@@ -186,6 +188,7 @@ const Connections = () => {
   const [selectedChat, setSelectedChat] = useState(null);
   const [content, setContent] = useState("");
   const [currentChatId, setCurrentChatId] = useState("");
+  const {isOpen, onOpen, onClose} = useDisclosure()
 
   const getConservations = useCallback(async () => {
     try {
@@ -208,14 +211,13 @@ const Connections = () => {
     } catch (error) {}
   };
 
-
   useEffect(() => {
     getConservations();
   }, [getConservations]);
 
   useEffect(() => {
     socket.connect().emit("setId", user?._id);
-    //socket.emit("setId", user?._id);
+
     socket.on("receive", ({ message, conservationId }) => {
       const conservationTop = conservations?.filter(
         (item) => item?._id === conservationId
@@ -223,10 +225,7 @@ const Connections = () => {
       const leftConservation = conservations?.filter(
         (item) => item?._id !== conservationId
       );
-      console.log(
-        conservationId.messages?.find((item) => item._id === message?._id)
-      );
-      if (!conservationId.messages?.find((item) => item._id === message?._id)) {
+      if (!conservationTop?.messages?.find((item) => item._id === message?._id)) {
         conservationTop?.messages.push(message);
         setConservations([conservationTop, ...leftConservation]);
         console.log(selectedChat);
@@ -240,7 +239,7 @@ const Connections = () => {
 
     return () => {
       socket.emit("clear", user?._id);
-      socket.off('receive')
+      socket.off("receive");
       socket.disconnect();
     };
   }, [conservations, selectedChat]);
@@ -267,6 +266,7 @@ const Connections = () => {
 
   return (
     <Box>
+      <OfferDialog isOpen={isOpen} onClose={onClose} employeeId={selectedChat?.employee?._id} companyId={selectedChat?.company?._id} token={token} />
       <Flex height='90vh'>
         <Box
           width='500px'
@@ -306,7 +306,12 @@ const Connections = () => {
                 ))}
                 <Box ref={chatView}></Box>
               </Flex>
-              <Box>
+              <Flex>
+                {user?.accountType === "company" && (
+                  <Button onClick={onOpen} bg='blue.400' color='white'>
+                    Send Offer
+                  </Button>
+                )}
                 <InputGroup px={2} borderColor='black'>
                   <Input
                     type='text'
@@ -321,7 +326,7 @@ const Connections = () => {
                     children={<FaPaperPlane />}
                   />
                 </InputGroup>
-              </Box>
+              </Flex>
             </>
           ) : (
             <></>

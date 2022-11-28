@@ -3,7 +3,7 @@ import moment from "moment";
 import { FaExternalLinkAlt, FaPen } from "react-icons/fa";
 import ProjectModal from "./project-modal";
 
-const ProjectItem = ({ item, reload }) => {
+const ProjectItem = ({ item, reload, user, id }) => {
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -49,11 +49,11 @@ const ProjectItem = ({ item, reload }) => {
             </>
           )}
             </Box>
-            <IconButton
+            {user._id === id && <IconButton
               color='gray'
               icon={<FaPen />}
               onClick={onOpen}
-            />
+            />}
           </Flex>
           <a href={item?.repositoryUrl} target="_blank" style={{display: 'flex', alignItems: 'center', gap: 10, width: "fit-content", padding: "10px 20px", border: '1px solid gray', borderRadius: 20, marginTop: 5}}>
             <span>Visit Project</span>

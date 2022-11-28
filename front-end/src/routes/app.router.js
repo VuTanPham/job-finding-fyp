@@ -12,6 +12,9 @@ import ManagePosts from "../features/manage-posts";
 import JobApplied from "../features/job-applied";
 import PostDetail from "../features/detail";
 import Connections from "../features/connection";
+import AdminManageUser from "../features/admin-manage-user";
+import AdminManagePost from "../features/admin-manage-post";
+import AdminContainer from "../containers/admin.container";
 
 const AppRouter = () => {
   const {
@@ -20,7 +23,7 @@ const AppRouter = () => {
 
   return (
     <Routes>
-      <Route path='/' element={<AppContainer />}>
+      <Route path='/' element={user.accountType === 'admin' ? <AdminContainer /> : <AppContainer />}>
         {!isAuthenticated && (
           <>
             <Route path='' element={<LandingPage />} />
@@ -28,24 +31,32 @@ const AppRouter = () => {
             <Route path='register' element={<RegisterPage />} />
           </>
         )}
-        {isAuthenticated && (
-          <>
-            <Route path='' element={<HomePage />} />
-            <Route path='/connections' element={<Connections />} />
-            <Route path='detail/:id' element={<PostDetail />} />
-            <Route path='user-profile/:id' element={<UserProfile />} />
-            {user.accountType === "company" && (
-              <>
-                <Route path='manage-posts' element={<ManagePosts />} />
-              </>
-            )}
-            {user.accountType === "employee" && (
-              <>
-                <Route path='applied-posts' element={<JobApplied />} />
-              </>
-            )}
-          </>
-        )}
+        {isAuthenticated &&
+          (user.accountType === "admin" ? (
+            <>
+              <Route path='' element={<AdminManageUser />} />
+              <Route path='/posts' element={<AdminManagePost />} />
+              <Route path='user-profile/:id' element={<UserProfile />} />
+              <Route path='detail/:id' element={<PostDetail />} />
+            </>
+          ) : (
+            <>
+              <Route path='' element={<HomePage />} />
+              <Route path='/connections' element={<Connections />} />
+              <Route path='detail/:id' element={<PostDetail />} />
+              <Route path='user-profile/:id' element={<UserProfile />} />
+              {user.accountType === "company" && (
+                <>
+                  <Route path='manage-posts' element={<ManagePosts />} />
+                </>
+              )}
+              {user.accountType === "employee" && (
+                <>
+                  <Route path='applied-posts' element={<JobApplied />} />
+                </>
+              )}
+            </>
+          ))}
         <Route path='*' element={<NotFound />} />
       </Route>
     </Routes>

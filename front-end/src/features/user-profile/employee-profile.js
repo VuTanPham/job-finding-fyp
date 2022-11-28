@@ -23,11 +23,7 @@ import {
   FaTimes,
 } from "react-icons/fa";
 import { toast } from "react-toastify";
-import { useNavigate, useParams } from "react-router-dom";
-import ExperienceModal from "./employee-profile/experience-modal";
-import ExperienceItem from "./employee-profile/experience-item";
-import ProjectItem from "./employee-profile/project-item";
-import ProjectModal from "./employee-profile/project-modal";
+import {  useParams } from "react-router-dom";
 import Project from "./employee-profile/project";
 import Experience from "./employee-profile/experience";
 

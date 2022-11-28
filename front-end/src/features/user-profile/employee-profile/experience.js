@@ -26,7 +26,7 @@ const Experience = ({ experiences, reload, id, user }) => {
       </Flex>
       <Box>
         {experiences?.map((item) => (
-          <ExperienceItem item={item} key={item._id} reload={reload} />
+          <ExperienceItem item={item} key={item._id} reload={reload} user={user} id={user} />
         ))}
       </Box>
     </Box>

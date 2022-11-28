@@ -27,7 +27,7 @@ const Project = ({ projects, reload, user, id }) => {
         </Flex>
         <Box>
           {projects?.map((item) => (
-            <ProjectItem item={item} key={item._id} reload={reload} />
+            <ProjectItem item={item} key={item._id} reload={reload} user={user} id={id} />
           ))}
         </Box>
       </Box>

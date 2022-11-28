@@ -13,13 +13,33 @@ const updateUserProfile = async (userId, { profile, ...rest }) => {
 };
 
 const getAllUsers = async (page = 1) => {
-  const allUsers = await User.estimatedDocumentCount();
-  const totalPages = Math.ceil(allUsers / LIMIT);
+  const allUsers = await User.find({accountType: {$ne: "admin"}});
+  const totalPages = Math.ceil(allUsers.length / LIMIT);
+  const data = await Promise.all( allUsers.map(async (user) => {
+    if(user.accountType === 'company') {
+      const profile = await CompanyProfile.findOne({account: user._id});
+      return {
+        _id: user._id,
+        username: user.username,
+        accountType: user.accountType,
+        fullName: profile?.name,
+        banned: user.banned
+      }
+    }
+    else {
+      const profile = await EmployeeProfile.findOne({account: user._id});
+      return {
+        _id: user._id,
+        username: user.username,
+        accountType: user.accountType,
+        fullName: profile?.name,
+        banned: user.banned
+      }
+    }
+  }))
 
   return {
-    data: await User.find()
-      .skip((page - 1) * LIMIT)
-      .limit(LIMIT),
+    data: data.splice((page - 1)* LIMIT, LIMIT),
     totalPages,
   };
 };

@@ -26,6 +26,6 @@ hiringPostRoute.get("/:id", getOne);
 hiringPostRoute.post("/", authorize("company"), create);
 hiringPostRoute.post("/apply", authorize("employee"), applyToPost);
 hiringPostRoute.put("/:id", authorize("company"), update);
-hiringPostRoute.delete("/:id", authorize("company"), remove);
+hiringPostRoute.delete("/:id", authorize(["company", 'admin']), remove);
 
 module.exports = hiringPostRoute;

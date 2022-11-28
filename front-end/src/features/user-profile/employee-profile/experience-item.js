@@ -11,7 +11,7 @@ import moment from "moment";
 import { FaPen } from "react-icons/fa";
 import ExperienceModal from "./experience-modal";
 
-const ExperienceItem = ({ item, reload }) => {
+const ExperienceItem = ({ item, reload, user, id }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
@@ -56,7 +56,7 @@ const ExperienceItem = ({ item, reload }) => {
                 </>
               )}
             </Box>
-            <IconButton color='gray' icon={<FaPen />} onClick={onOpen} />
+            {user._id === id && <IconButton color='gray' icon={<FaPen />} onClick={onOpen} />}
           </Flex>
           {item?.description && (
             <>
