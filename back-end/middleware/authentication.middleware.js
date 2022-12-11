@@ -18,6 +18,7 @@ passport.use(
       if (err) {
         return next(err);
       }
+      if(user.banned) return next(null, false);
       if (!user) return next(null, false);
       user.validatePassword(password, next); //req.user;
     });
